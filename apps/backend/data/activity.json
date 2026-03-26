@@ -1,0 +1,1258 @@
+{
+  "creditEvents": [
+    {
+      "id": "a316b5a1-d6f8-4fac-9faa-8acd0583f9a4",
+      "userId": "7f27ab5f-bfb5-46db-8bc3-38e8275d9dfd",
+      "sessionId": null,
+      "eventType": "doc_upload_extract",
+      "agentName": "document_extractor",
+      "modelName": "googleai/gemini-2.5-flash",
+      "inputTokens": 107,
+      "outputTokens": 25,
+      "totalTokens": 132,
+      "creditsUsed": 0.0238,
+      "billingPeriod": "2026-03-01",
+      "createdAt": "2026-03-20T15:32:33.229Z",
+      "metadata": {
+        "docType": "pan_card",
+        "fileUrl": "https://firebasestorage.googleapis.com/v0/b/studio-8697020212-38807.firebasestorage.app/o/users%2F7f27ab5f-bfb5-46db-8bc3-38e8275d9dfd%2Fdocuments%2Fpan_card%2F1774020734610_pancard_2.png?alt=media&token=0b0432e2-2b2b-4730-ba69-0840b5339a58",
+        "storagePath": "users/7f27ab5f-bfb5-46db-8bc3-38e8275d9dfd/documents/pan_card/1774020734610_pancard_2.png",
+        "mimeType": "image/png",
+        "status": "verified"
+      }
+    },
+    {
+      "id": "863ef30d-20d4-462a-aad1-92f102ca2b62",
+      "userId": "a50958a7-13df-452d-a273-f4c2c0cc930f",
+      "sessionId": null,
+      "eventType": "doc_upload_extract",
+      "agentName": "document_extractor",
+      "modelName": "googleai/gemini-2.5-flash",
+      "inputTokens": 4735,
+      "outputTokens": 7777,
+      "totalTokens": 20643,
+      "creditsUsed": 3.7157,
+      "billingPeriod": "2026-03-01",
+      "createdAt": "2026-03-21T19:08:30.885Z",
+      "metadata": {
+        "docType": "pitch_deck",
+        "fileUrl": "https://firebasestorage.googleapis.com/v0/b/studio-8697020212-38807.firebasestorage.app/o/users%2Fa50958a7-13df-452d-a273-f4c2c0cc930f%2Fdocuments%2Fpitch_deck%2F1774120034437_Femto_Pitch-3_compressed__1_.pdf?alt=media&token=040ee0ed-585a-4cc0-982e-bba989f70c53",
+        "storagePath": "users/a50958a7-13df-452d-a273-f4c2c0cc930f/documents/pitch_deck/1774120034437_Femto_Pitch-3_compressed__1_.pdf",
+        "mimeType": "application/pdf",
+        "status": "verified",
+        "usageSource": "provider",
+        "providerUsage": {
+          "inputTokens": 4735,
+          "outputTokens": 7777,
+          "totalTokens": 20643,
+          "inputImages": 0,
+          "thoughtsTokens": 8131
+        }
+      }
+    },
+    {
+      "id": "358601f0-0d00-4d4d-8af6-2667d369607d",
+      "userId": "a50958a7-13df-452d-a273-f4c2c0cc930f",
+      "sessionId": "c78d8c35-42e8-4a46-a9c7-67c91b530d42",
+      "eventType": "form_fill_agent",
+      "agentName": "intent_classifier",
+      "modelName": "googleai/gemini-2.5-flash",
+      "inputTokens": 159,
+      "outputTokens": 7,
+      "totalTokens": 196,
+      "creditsUsed": 0.0353,
+      "billingPeriod": "2026-03-01",
+      "createdAt": "2026-03-21T19:10:28.770Z",
+      "metadata": {
+        "formTitle": "Apply to Y Combinator",
+        "formUrl": "https://apply.ycombinator.com/apps/de78c582-73e7-4955-a698-b88c9b745aee/edit",
+        "intentType": "chat",
+        "usageSource": "provider",
+        "providerUsage": {
+          "inputTokens": 159,
+          "outputTokens": 7,
+          "totalTokens": 196,
+          "inputImages": 0,
+          "outputImages": 0,
+          "thoughtsTokens": 30
+        },
+        "durationMs": 1278,
+        "success": true,
+        "error": null
+      }
+    },
+    {
+      "id": "0335e2f3-774a-43ac-9b30-b1ee3d021848",
+      "userId": "a50958a7-13df-452d-a273-f4c2c0cc930f",
+      "sessionId": "c78d8c35-42e8-4a46-a9c7-67c91b530d42",
+      "eventType": "form_fill_agent",
+      "agentName": "field_selector",
+      "modelName": "googleai/gemini-2.5-flash",
+      "inputTokens": 973,
+      "outputTokens": 43,
+      "totalTokens": 1069,
+      "creditsUsed": 0.1924,
+      "billingPeriod": "2026-03-01",
+      "createdAt": "2026-03-21T19:10:30.012Z",
+      "metadata": {
+        "formTitle": "Apply to Y Combinator",
+        "formUrl": "https://apply.ycombinator.com/apps/de78c582-73e7-4955-a698-b88c9b745aee/edit",
+        "availableFields": 28,
+        "usageSource": "provider",
+        "providerUsage": {
+          "inputTokens": 973,
+          "outputTokens": 43,
+          "totalTokens": 1069,
+          "inputImages": 0,
+          "outputImages": 0,
+          "thoughtsTokens": 53
+        },
+        "durationMs": 1241,
+        "success": true,
+        "error": null
+      }
+    },
+    {
+      "id": "0434df47-c70a-46c9-b79d-88252a15a33f",
+      "userId": "a50958a7-13df-452d-a273-f4c2c0cc930f",
+      "sessionId": "c78d8c35-42e8-4a46-a9c7-67c91b530d42",
+      "eventType": "form_fill_agent",
+      "agentName": "doc_router",
+      "modelName": "googleai/gemini-2.5-flash",
+      "inputTokens": 1312,
+      "outputTokens": 752,
+      "totalTokens": 4148,
+      "creditsUsed": 0.7466,
+      "billingPeriod": "2026-03-01",
+      "createdAt": "2026-03-21T19:10:43.293Z",
+      "metadata": {
+        "formTitle": "Apply to Y Combinator",
+        "formUrl": "https://apply.ycombinator.com/apps/de78c582-73e7-4955-a698-b88c9b745aee/edit",
+        "questionCount": 27,
+        "mode": "autofill",
+        "usageSource": "provider",
+        "providerUsage": {
+          "inputTokens": 1312,
+          "outputTokens": 752,
+          "totalTokens": 4148,
+          "inputImages": 0,
+          "outputImages": 0,
+          "thoughtsTokens": 2084
+        },
+        "durationMs": 13278,
+        "success": true,
+        "error": null
+      }
+    },
+    {
+      "id": "5ca6e3a2-93d3-4172-928f-c91a92d81df0",
+      "userId": "a50958a7-13df-452d-a273-f4c2c0cc930f",
+      "sessionId": "c78d8c35-42e8-4a46-a9c7-67c91b530d42",
+      "eventType": "form_fill_agent",
+      "agentName": "profile_extractor",
+      "modelName": "googleai/gemini-2.5-flash",
+      "inputTokens": 987,
+      "outputTokens": 52,
+      "totalTokens": 1523,
+      "creditsUsed": 0.2741,
+      "billingPeriod": "2026-03-01",
+      "createdAt": "2026-03-21T19:10:47.837Z",
+      "metadata": {
+        "formTitle": "Apply to Y Combinator",
+        "formUrl": "https://apply.ycombinator.com/apps/de78c582-73e7-4955-a698-b88c9b745aee/edit",
+        "source": "profile",
+        "questionCount": 4,
+        "usageSource": "provider",
+        "providerUsage": {
+          "inputTokens": 987,
+          "outputTokens": 52,
+          "totalTokens": 1523,
+          "inputImages": 0,
+          "outputImages": 0,
+          "thoughtsTokens": 484
+        },
+        "durationMs": 4539,
+        "success": true,
+        "error": null
+      }
+    },
+    {
+      "id": "f6ff7669-c228-4dae-b9f7-c0ad20b430d4",
+      "userId": "a50958a7-13df-452d-a273-f4c2c0cc930f",
+      "sessionId": "c78d8c35-42e8-4a46-a9c7-67c91b530d42",
+      "eventType": "form_fill_agent",
+      "agentName": "document_extractor",
+      "modelName": "googleai/gemini-2.5-flash",
+      "inputTokens": 5374,
+      "outputTokens": 1076,
+      "totalTokens": 10235,
+      "creditsUsed": 1.8423,
+      "billingPeriod": "2026-03-01",
+      "createdAt": "2026-03-21T19:11:03.948Z",
+      "metadata": {
+        "formTitle": "Apply to Y Combinator",
+        "formUrl": "https://apply.ycombinator.com/apps/de78c582-73e7-4955-a698-b88c9b745aee/edit",
+        "source": "pitch_deck",
+        "questionCount": 23,
+        "usageSource": "provider",
+        "providerUsage": {
+          "inputTokens": 5374,
+          "outputTokens": 1076,
+          "totalTokens": 10235,
+          "inputImages": 0,
+          "outputImages": 0,
+          "thoughtsTokens": 3785
+        },
+        "durationMs": 20652,
+        "success": true,
+        "error": null
+      }
+    },
+    {
+      "id": "288c1a7e-dcb9-4610-a941-cba979e5eb91",
+      "userId": "a50958a7-13df-452d-a273-f4c2c0cc930f",
+      "sessionId": "c78d8c35-42e8-4a46-a9c7-67c91b530d42",
+      "eventType": "form_fill_agent",
+      "agentName": "option_resolver",
+      "modelName": "googleai/gemini-2.5-flash",
+      "inputTokens": 165,
+      "outputTokens": 7,
+      "totalTokens": 336,
+      "creditsUsed": 0.0605,
+      "billingPeriod": "2026-03-01",
+      "createdAt": "2026-03-21T19:11:05.334Z",
+      "metadata": {
+        "formTitle": "Apply to Y Combinator",
+        "formUrl": "https://apply.ycombinator.com/apps/de78c582-73e7-4955-a698-b88c9b745aee/edit",
+        "optionCount": 2,
+        "fieldLabel": "Are people using your product?",
+        "usageSource": "provider",
+        "providerUsage": {
+          "inputTokens": 165,
+          "outputTokens": 7,
+          "totalTokens": 336,
+          "inputImages": 0,
+          "outputImages": 0,
+          "thoughtsTokens": 164
+        },
+        "durationMs": 1383,
+        "success": true,
+        "error": null
+      }
+    },
+    {
+      "id": "79e1dc65-54f4-41f1-92ac-d3993173a834",
+      "userId": "a50958a7-13df-452d-a273-f4c2c0cc930f",
+      "sessionId": "c78d8c35-42e8-4a46-a9c7-67c91b530d42",
+      "eventType": "form_fill_agent",
+      "agentName": "option_resolver",
+      "modelName": "googleai/gemini-2.5-flash",
+      "inputTokens": 150,
+      "outputTokens": 7,
+      "totalTokens": 263,
+      "creditsUsed": 0.0473,
+      "billingPeriod": "2026-03-01",
+      "createdAt": "2026-03-21T19:11:06.870Z",
+      "metadata": {
+        "formTitle": "Apply to Y Combinator",
+        "formUrl": "https://apply.ycombinator.com/apps/de78c582-73e7-4955-a698-b88c9b745aee/edit",
+        "optionCount": 2,
+        "fieldLabel": "Do you have revenue?",
+        "usageSource": "provider",
+        "providerUsage": {
+          "inputTokens": 150,
+          "outputTokens": 7,
+          "totalTokens": 263,
+          "inputImages": 0,
+          "outputImages": 0,
+          "thoughtsTokens": 106
+        },
+        "durationMs": 1535,
+        "success": true,
+        "error": null
+      }
+    },
+    {
+      "id": "3021bdc0-bf7c-4b5c-80f8-3d8b0b43b13e",
+      "userId": "a50958a7-13df-452d-a273-f4c2c0cc930f",
+      "sessionId": "c78d8c35-42e8-4a46-a9c7-67c91b530d42",
+      "eventType": "form_fill_agent",
+      "agentName": "option_resolver",
+      "modelName": "googleai/gemini-2.5-flash",
+      "inputTokens": 135,
+      "outputTokens": 7,
+      "totalTokens": 240,
+      "creditsUsed": 0.0432,
+      "billingPeriod": "2026-03-01",
+      "createdAt": "2026-03-21T19:11:07.969Z",
+      "metadata": {
+        "formTitle": "Apply to Y Combinator",
+        "formUrl": "https://apply.ycombinator.com/apps/de78c582-73e7-4955-a698-b88c9b745aee/edit",
+        "optionCount": 2,
+        "fieldLabel": "Have you taken any investment yet?",
+        "usageSource": "provider",
+        "providerUsage": {
+          "inputTokens": 135,
+          "outputTokens": 7,
+          "totalTokens": 240,
+          "inputImages": 0,
+          "outputImages": 0,
+          "thoughtsTokens": 98
+        },
+        "durationMs": 1099,
+        "success": true,
+        "error": null
+      }
+    },
+    {
+      "id": "3637e6ee-f22c-44a1-80a5-13fd7878fde4",
+      "userId": "a50958a7-13df-452d-a273-f4c2c0cc930f",
+      "sessionId": "c78d8c35-42e8-4a46-a9c7-67c91b530d42",
+      "eventType": "form_fill_agent",
+      "agentName": "option_resolver",
+      "modelName": "googleai/gemini-2.5-flash",
+      "inputTokens": 150,
+      "outputTokens": 7,
+      "totalTokens": 260,
+      "creditsUsed": 0.0468,
+      "billingPeriod": "2026-03-01",
+      "createdAt": "2026-03-21T19:11:09.519Z",
+      "metadata": {
+        "formTitle": "Apply to Y Combinator",
+        "formUrl": "https://apply.ycombinator.com/apps/de78c582-73e7-4955-a698-b88c9b745aee/edit",
+        "optionCount": 2,
+        "fieldLabel": "Are you currently fundraising?",
+        "usageSource": "provider",
+        "providerUsage": {
+          "inputTokens": 150,
+          "outputTokens": 7,
+          "totalTokens": 260,
+          "inputImages": 0,
+          "outputImages": 0,
+          "thoughtsTokens": 103
+        },
+        "durationMs": 1550,
+        "success": true,
+        "error": null
+      }
+    },
+    {
+      "id": "c3402a30-57ae-4c55-8ec5-5db367125e64",
+      "userId": "a50958a7-13df-452d-a273-f4c2c0cc930f",
+      "sessionId": "b9e22633-eda1-4e0e-8446-f12790c2059a",
+      "eventType": "form_fill_agent",
+      "agentName": "intent_classifier",
+      "modelName": "googleai/gemini-2.5-flash",
+      "inputTokens": 159,
+      "outputTokens": 7,
+      "totalTokens": 205,
+      "creditsUsed": 0.0369,
+      "billingPeriod": "2026-03-01",
+      "createdAt": "2026-03-21T19:20:05.328Z",
+      "metadata": {
+        "formTitle": "Apply to Y Combinator",
+        "formUrl": "https://apply.ycombinator.com/apps/de78c582-73e7-4955-a698-b88c9b745aee/edit",
+        "intentType": "chat",
+        "usageSource": "provider",
+        "providerUsage": {
+          "inputTokens": 159,
+          "outputTokens": 7,
+          "totalTokens": 205,
+          "inputImages": 0,
+          "outputImages": 0,
+          "thoughtsTokens": 39
+        },
+        "durationMs": 1427,
+        "success": true,
+        "error": null
+      }
+    },
+    {
+      "id": "74f1f9e2-009a-4d5e-9d77-c020ca58f0e4",
+      "userId": "a50958a7-13df-452d-a273-f4c2c0cc930f",
+      "sessionId": "b9e22633-eda1-4e0e-8446-f12790c2059a",
+      "eventType": "form_fill_agent",
+      "agentName": "field_selector",
+      "modelName": "googleai/gemini-2.5-flash",
+      "inputTokens": 973,
+      "outputTokens": 44,
+      "totalTokens": 1069,
+      "creditsUsed": 0.1924,
+      "billingPeriod": "2026-03-01",
+      "createdAt": "2026-03-21T19:20:06.913Z",
+      "metadata": {
+        "formTitle": "Apply to Y Combinator",
+        "formUrl": "https://apply.ycombinator.com/apps/de78c582-73e7-4955-a698-b88c9b745aee/edit",
+        "availableFields": 28,
+        "usageSource": "provider",
+        "providerUsage": {
+          "inputTokens": 973,
+          "outputTokens": 44,
+          "totalTokens": 1069,
+          "inputImages": 0,
+          "outputImages": 0,
+          "thoughtsTokens": 52
+        },
+        "durationMs": 1584,
+        "success": true,
+        "error": null
+      }
+    },
+    {
+      "id": "2025c97e-40af-43d4-a906-ffc5378efa93",
+      "userId": "a50958a7-13df-452d-a273-f4c2c0cc930f",
+      "sessionId": "b9e22633-eda1-4e0e-8446-f12790c2059a",
+      "eventType": "form_fill_agent",
+      "agentName": "doc_router",
+      "modelName": "googleai/gemini-2.5-flash",
+      "inputTokens": 1352,
+      "outputTokens": 655,
+      "totalTokens": 5590,
+      "creditsUsed": 1.0062,
+      "billingPeriod": "2026-03-01",
+      "createdAt": "2026-03-21T19:20:23.889Z",
+      "metadata": {
+        "formTitle": "Apply to Y Combinator",
+        "formUrl": "https://apply.ycombinator.com/apps/de78c582-73e7-4955-a698-b88c9b745aee/edit",
+        "questionCount": 27,
+        "mode": "autofill",
+        "usageSource": "provider",
+        "providerUsage": {
+          "inputTokens": 1352,
+          "outputTokens": 655,
+          "totalTokens": 5590,
+          "inputImages": 0,
+          "outputImages": 0,
+          "thoughtsTokens": 3583
+        },
+        "durationMs": 16965,
+        "success": true,
+        "error": null
+      }
+    },
+    {
+      "id": "1baf8924-b491-4032-8537-af39f63d2fe5",
+      "userId": "a50958a7-13df-452d-a273-f4c2c0cc930f",
+      "sessionId": "b9e22633-eda1-4e0e-8446-f12790c2059a",
+      "eventType": "form_fill_agent",
+      "agentName": "profile_extractor",
+      "modelName": "googleai/gemini-2.5-flash",
+      "inputTokens": 1332,
+      "outputTokens": 187,
+      "totalTokens": 2764,
+      "creditsUsed": 0.4975,
+      "billingPeriod": "2026-03-01",
+      "createdAt": "2026-03-21T19:20:30.480Z",
+      "metadata": {
+        "formTitle": "Apply to Y Combinator",
+        "formUrl": "https://apply.ycombinator.com/apps/de78c582-73e7-4955-a698-b88c9b745aee/edit",
+        "source": "profile",
+        "questionCount": 11,
+        "usageSource": "provider",
+        "providerUsage": {
+          "inputTokens": 1332,
+          "outputTokens": 187,
+          "totalTokens": 2764,
+          "inputImages": 0,
+          "outputImages": 0,
+          "thoughtsTokens": 1245
+        },
+        "durationMs": 6589,
+        "success": true,
+        "error": null
+      }
+    },
+    {
+      "id": "5be676ce-c0e0-4433-811c-c5989a6deba6",
+      "userId": "a50958a7-13df-452d-a273-f4c2c0cc930f",
+      "sessionId": "b9e22633-eda1-4e0e-8446-f12790c2059a",
+      "eventType": "form_fill_agent",
+      "agentName": "document_extractor",
+      "modelName": "googleai/gemini-2.5-flash",
+      "inputTokens": 5029,
+      "outputTokens": 1003,
+      "totalTokens": 9700,
+      "creditsUsed": 1.746,
+      "billingPeriod": "2026-03-01",
+      "createdAt": "2026-03-21T19:20:42.101Z",
+      "metadata": {
+        "formTitle": "Apply to Y Combinator",
+        "formUrl": "https://apply.ycombinator.com/apps/de78c582-73e7-4955-a698-b88c9b745aee/edit",
+        "source": "pitch_deck",
+        "questionCount": 16,
+        "usageSource": "provider",
+        "providerUsage": {
+          "inputTokens": 5029,
+          "outputTokens": 1003,
+          "totalTokens": 9700,
+          "inputImages": 0,
+          "outputImages": 0,
+          "thoughtsTokens": 3668
+        },
+        "durationMs": 18210,
+        "success": true,
+        "error": null
+      }
+    },
+    {
+      "id": "e34c2d9a-6b2e-4f8d-a7d7-1d63acdc218b",
+      "userId": "a50958a7-13df-452d-a273-f4c2c0cc930f",
+      "sessionId": "b9e22633-eda1-4e0e-8446-f12790c2059a",
+      "eventType": "form_fill_agent",
+      "agentName": "option_resolver",
+      "modelName": "googleai/gemini-2.5-flash",
+      "inputTokens": 287,
+      "outputTokens": 7,
+      "totalTokens": 419,
+      "creditsUsed": 0.0754,
+      "billingPeriod": "2026-03-01",
+      "createdAt": "2026-03-21T19:20:43.838Z",
+      "metadata": {
+        "formTitle": "Apply to Y Combinator",
+        "formUrl": "https://apply.ycombinator.com/apps/de78c582-73e7-4955-a698-b88c9b745aee/edit",
+        "optionCount": 44,
+        "fieldLabel": "Which category best applies to your company?",
+        "usageSource": "provider",
+        "providerUsage": {
+          "inputTokens": 287,
+          "outputTokens": 7,
+          "totalTokens": 419,
+          "inputImages": 0,
+          "outputImages": 0,
+          "thoughtsTokens": 125
+        },
+        "durationMs": 1736,
+        "success": true,
+        "error": null
+      }
+    },
+    {
+      "id": "965449c9-f927-40b6-8a14-69e28b832480",
+      "userId": "a50958a7-13df-452d-a273-f4c2c0cc930f",
+      "sessionId": "b9e22633-eda1-4e0e-8446-f12790c2059a",
+      "eventType": "form_fill_agent",
+      "agentName": "option_resolver",
+      "modelName": "googleai/gemini-2.5-flash",
+      "inputTokens": 161,
+      "outputTokens": 6,
+      "totalTokens": 271,
+      "creditsUsed": 0.0488,
+      "billingPeriod": "2026-03-01",
+      "createdAt": "2026-03-21T19:20:45.496Z",
+      "metadata": {
+        "formTitle": "Apply to Y Combinator",
+        "formUrl": "https://apply.ycombinator.com/apps/de78c582-73e7-4955-a698-b88c9b745aee/edit",
+        "optionCount": 2,
+        "fieldLabel": "Are people using your product?",
+        "usageSource": "provider",
+        "providerUsage": {
+          "inputTokens": 161,
+          "outputTokens": 6,
+          "totalTokens": 271,
+          "inputImages": 0,
+          "outputImages": 0,
+          "thoughtsTokens": 104
+        },
+        "durationMs": 1657,
+        "success": true,
+        "error": null
+      }
+    },
+    {
+      "id": "d3688421-d7c9-45fb-8de4-9ac7f32aaccb",
+      "userId": "a50958a7-13df-452d-a273-f4c2c0cc930f",
+      "sessionId": "b9e22633-eda1-4e0e-8446-f12790c2059a",
+      "eventType": "form_fill_agent",
+      "agentName": "option_resolver",
+      "modelName": "googleai/gemini-2.5-flash",
+      "inputTokens": 199,
+      "outputTokens": 7,
+      "totalTokens": 351,
+      "creditsUsed": 0.0632,
+      "billingPeriod": "2026-03-01",
+      "createdAt": "2026-03-21T19:20:47.140Z",
+      "metadata": {
+        "formTitle": "Apply to Y Combinator",
+        "formUrl": "https://apply.ycombinator.com/apps/de78c582-73e7-4955-a698-b88c9b745aee/edit",
+        "optionCount": 2,
+        "fieldLabel": "Do you have revenue?",
+        "usageSource": "provider",
+        "providerUsage": {
+          "inputTokens": 199,
+          "outputTokens": 7,
+          "totalTokens": 351,
+          "inputImages": 0,
+          "outputImages": 0,
+          "thoughtsTokens": 145
+        },
+        "durationMs": 1643,
+        "success": true,
+        "error": null
+      }
+    },
+    {
+      "id": "f7aa82e0-0ba1-4c8b-b94d-3e68f25ac0e9",
+      "userId": "a50958a7-13df-452d-a273-f4c2c0cc930f",
+      "sessionId": "b9e22633-eda1-4e0e-8446-f12790c2059a",
+      "eventType": "form_fill_agent",
+      "agentName": "option_resolver",
+      "modelName": "googleai/gemini-2.5-flash",
+      "inputTokens": 129,
+      "outputTokens": 6,
+      "totalTokens": 226,
+      "creditsUsed": 0.0407,
+      "billingPeriod": "2026-03-01",
+      "createdAt": "2026-03-21T19:20:48.746Z",
+      "metadata": {
+        "formTitle": "Apply to Y Combinator",
+        "formUrl": "https://apply.ycombinator.com/apps/de78c582-73e7-4955-a698-b88c9b745aee/edit",
+        "optionCount": 2,
+        "fieldLabel": "Have you formed ANY legal entity yet?",
+        "usageSource": "provider",
+        "providerUsage": {
+          "inputTokens": 129,
+          "outputTokens": 6,
+          "totalTokens": 226,
+          "inputImages": 0,
+          "outputImages": 0,
+          "thoughtsTokens": 91
+        },
+        "durationMs": 1606,
+        "success": true,
+        "error": null
+      }
+    },
+    {
+      "id": "808710de-e95e-4de9-a155-34586f4baae0",
+      "userId": "a50958a7-13df-452d-a273-f4c2c0cc930f",
+      "sessionId": "b9e22633-eda1-4e0e-8446-f12790c2059a",
+      "eventType": "form_fill_agent",
+      "agentName": "option_resolver",
+      "modelName": "googleai/gemini-2.5-flash",
+      "inputTokens": 135,
+      "outputTokens": 7,
+      "totalTokens": 229,
+      "creditsUsed": 0.0412,
+      "billingPeriod": "2026-03-01",
+      "createdAt": "2026-03-21T19:20:50.211Z",
+      "metadata": {
+        "formTitle": "Apply to Y Combinator",
+        "formUrl": "https://apply.ycombinator.com/apps/de78c582-73e7-4955-a698-b88c9b745aee/edit",
+        "optionCount": 2,
+        "fieldLabel": "Have you taken any investment yet?",
+        "usageSource": "provider",
+        "providerUsage": {
+          "inputTokens": 135,
+          "outputTokens": 7,
+          "totalTokens": 229,
+          "inputImages": 0,
+          "outputImages": 0,
+          "thoughtsTokens": 87
+        },
+        "durationMs": 1465,
+        "success": true,
+        "error": null
+      }
+    },
+    {
+      "id": "dc5f5db5-e016-4b9e-a55b-bb051dad07cd",
+      "userId": "a50958a7-13df-452d-a273-f4c2c0cc930f",
+      "sessionId": "b9e22633-eda1-4e0e-8446-f12790c2059a",
+      "eventType": "form_fill_agent",
+      "agentName": "option_resolver",
+      "modelName": "googleai/gemini-2.5-flash",
+      "inputTokens": 146,
+      "outputTokens": 7,
+      "totalTokens": 253,
+      "creditsUsed": 0.0455,
+      "billingPeriod": "2026-03-01",
+      "createdAt": "2026-03-21T19:20:51.853Z",
+      "metadata": {
+        "formTitle": "Apply to Y Combinator",
+        "formUrl": "https://apply.ycombinator.com/apps/de78c582-73e7-4955-a698-b88c9b745aee/edit",
+        "optionCount": 2,
+        "fieldLabel": "Are you currently fundraising?",
+        "usageSource": "provider",
+        "providerUsage": {
+          "inputTokens": 146,
+          "outputTokens": 7,
+          "totalTokens": 253,
+          "inputImages": 0,
+          "outputImages": 0,
+          "thoughtsTokens": 100
+        },
+        "durationMs": 1642,
+        "success": true,
+        "error": null
+      }
+    }
+  ],
+  "sessions": [
+    {
+      "id": "c78d8c35-42e8-4a46-a9c7-67c91b530d42",
+      "userId": "a50958a7-13df-452d-a273-f4c2c0cc930f",
+      "formTitle": "Apply to Y Combinator",
+      "websiteName": "apply.ycombinator.com",
+      "formUrl": "https://apply.ycombinator.com/apps/de78c582-73e7-4955-a698-b88c9b745aee/edit",
+      "examCategory": "Startup / Accelerator",
+      "status": "submitted",
+      "modelName": "googleai/gemini-2.5-flash",
+      "startedAt": "2026-03-21T19:10:27.252Z",
+      "submittedAt": "2026-03-21T19:11:15.401Z",
+      "updatedAt": "2026-03-21T19:11:15.401Z",
+      "creditsUsed": 3.2885,
+      "totalTokens": 18270,
+      "agentCount": 9,
+      "agentLogs": [
+        {
+          "id": "441b9fcf-06fb-4c89-8067-585b54f76a4d",
+          "agentName": "intent_classifier",
+          "modelName": "googleai/gemini-2.5-flash",
+          "inputTokens": 159,
+          "outputTokens": 7,
+          "totalTokens": 196,
+          "creditsUsed": 0.0353,
+          "createdAt": "2026-03-21T19:10:28.770Z",
+          "metadata": {
+            "intentType": "chat",
+            "usageSource": "provider",
+            "providerUsage": {
+              "inputTokens": 159,
+              "outputTokens": 7,
+              "totalTokens": 196,
+              "inputImages": 0,
+              "outputImages": 0,
+              "thoughtsTokens": 30
+            },
+            "durationMs": 1278,
+            "success": true,
+            "error": null
+          }
+        },
+        {
+          "id": "0d7e1cee-1253-4191-b27a-c6fc9ccd4fcb",
+          "agentName": "field_selector",
+          "modelName": "googleai/gemini-2.5-flash",
+          "inputTokens": 973,
+          "outputTokens": 43,
+          "totalTokens": 1069,
+          "creditsUsed": 0.1924,
+          "createdAt": "2026-03-21T19:10:30.012Z",
+          "metadata": {
+            "availableFields": 28,
+            "usageSource": "provider",
+            "providerUsage": {
+              "inputTokens": 973,
+              "outputTokens": 43,
+              "totalTokens": 1069,
+              "inputImages": 0,
+              "outputImages": 0,
+              "thoughtsTokens": 53
+            },
+            "durationMs": 1241,
+            "success": true,
+            "error": null
+          }
+        },
+        {
+          "id": "4986c4a3-4929-49f3-9e69-568c81ff58bf",
+          "agentName": "doc_router",
+          "modelName": "googleai/gemini-2.5-flash",
+          "inputTokens": 1312,
+          "outputTokens": 752,
+          "totalTokens": 4148,
+          "creditsUsed": 0.7466,
+          "createdAt": "2026-03-21T19:10:43.293Z",
+          "metadata": {
+            "questionCount": 27,
+            "mode": "autofill",
+            "usageSource": "provider",
+            "providerUsage": {
+              "inputTokens": 1312,
+              "outputTokens": 752,
+              "totalTokens": 4148,
+              "inputImages": 0,
+              "outputImages": 0,
+              "thoughtsTokens": 2084
+            },
+            "durationMs": 13278,
+            "success": true,
+            "error": null
+          }
+        },
+        {
+          "id": "c5d162b9-4fdb-4b06-a90b-fda99ddc3130",
+          "agentName": "profile_extractor",
+          "modelName": "googleai/gemini-2.5-flash",
+          "inputTokens": 987,
+          "outputTokens": 52,
+          "totalTokens": 1523,
+          "creditsUsed": 0.2741,
+          "createdAt": "2026-03-21T19:10:47.837Z",
+          "metadata": {
+            "source": "profile",
+            "questionCount": 4,
+            "usageSource": "provider",
+            "providerUsage": {
+              "inputTokens": 987,
+              "outputTokens": 52,
+              "totalTokens": 1523,
+              "inputImages": 0,
+              "outputImages": 0,
+              "thoughtsTokens": 484
+            },
+            "durationMs": 4539,
+            "success": true,
+            "error": null
+          }
+        },
+        {
+          "id": "5f3bcced-c48c-44f8-ab7c-384bf1a567e6",
+          "agentName": "document_extractor",
+          "modelName": "googleai/gemini-2.5-flash",
+          "inputTokens": 5374,
+          "outputTokens": 1076,
+          "totalTokens": 10235,
+          "creditsUsed": 1.8423,
+          "createdAt": "2026-03-21T19:11:03.948Z",
+          "metadata": {
+            "source": "pitch_deck",
+            "questionCount": 23,
+            "usageSource": "provider",
+            "providerUsage": {
+              "inputTokens": 5374,
+              "outputTokens": 1076,
+              "totalTokens": 10235,
+              "inputImages": 0,
+              "outputImages": 0,
+              "thoughtsTokens": 3785
+            },
+            "durationMs": 20652,
+            "success": true,
+            "error": null
+          }
+        },
+        {
+          "id": "26884804-e6ed-411e-9ea1-1ab6d77f5db3",
+          "agentName": "option_resolver",
+          "modelName": "googleai/gemini-2.5-flash",
+          "inputTokens": 165,
+          "outputTokens": 7,
+          "totalTokens": 336,
+          "creditsUsed": 0.0605,
+          "createdAt": "2026-03-21T19:11:05.334Z",
+          "metadata": {
+            "optionCount": 2,
+            "fieldLabel": "Are people using your product?",
+            "usageSource": "provider",
+            "providerUsage": {
+              "inputTokens": 165,
+              "outputTokens": 7,
+              "totalTokens": 336,
+              "inputImages": 0,
+              "outputImages": 0,
+              "thoughtsTokens": 164
+            },
+            "durationMs": 1383,
+            "success": true,
+            "error": null
+          }
+        },
+        {
+          "id": "6d36ec52-a722-406e-84c7-da678891a02e",
+          "agentName": "option_resolver",
+          "modelName": "googleai/gemini-2.5-flash",
+          "inputTokens": 150,
+          "outputTokens": 7,
+          "totalTokens": 263,
+          "creditsUsed": 0.0473,
+          "createdAt": "2026-03-21T19:11:06.870Z",
+          "metadata": {
+            "optionCount": 2,
+            "fieldLabel": "Do you have revenue?",
+            "usageSource": "provider",
+            "providerUsage": {
+              "inputTokens": 150,
+              "outputTokens": 7,
+              "totalTokens": 263,
+              "inputImages": 0,
+              "outputImages": 0,
+              "thoughtsTokens": 106
+            },
+            "durationMs": 1535,
+            "success": true,
+            "error": null
+          }
+        },
+        {
+          "id": "4240e11b-b625-4315-9e50-6a6b84870132",
+          "agentName": "option_resolver",
+          "modelName": "googleai/gemini-2.5-flash",
+          "inputTokens": 135,
+          "outputTokens": 7,
+          "totalTokens": 240,
+          "creditsUsed": 0.0432,
+          "createdAt": "2026-03-21T19:11:07.969Z",
+          "metadata": {
+            "optionCount": 2,
+            "fieldLabel": "Have you taken any investment yet?",
+            "usageSource": "provider",
+            "providerUsage": {
+              "inputTokens": 135,
+              "outputTokens": 7,
+              "totalTokens": 240,
+              "inputImages": 0,
+              "outputImages": 0,
+              "thoughtsTokens": 98
+            },
+            "durationMs": 1099,
+            "success": true,
+            "error": null
+          }
+        },
+        {
+          "id": "7b5c2dff-d78c-4a73-a53f-03f13aa9e62f",
+          "agentName": "option_resolver",
+          "modelName": "googleai/gemini-2.5-flash",
+          "inputTokens": 150,
+          "outputTokens": 7,
+          "totalTokens": 260,
+          "creditsUsed": 0.0468,
+          "createdAt": "2026-03-21T19:11:09.519Z",
+          "metadata": {
+            "optionCount": 2,
+            "fieldLabel": "Are you currently fundraising?",
+            "usageSource": "provider",
+            "providerUsage": {
+              "inputTokens": 150,
+              "outputTokens": 7,
+              "totalTokens": 260,
+              "inputImages": 0,
+              "outputImages": 0,
+              "thoughtsTokens": 103
+            },
+            "durationMs": 1550,
+            "success": true,
+            "error": null
+          }
+        }
+      ],
+      "documents": [],
+      "metadata": {
+        "message": "Fill the form",
+        "source": "extension_chat",
+        "mirroredFrom": "extension_backend",
+        "originSessionId": "69beed53e3ed7325d7b91eca"
+      }
+    },
+    {
+      "id": "b9e22633-eda1-4e0e-8446-f12790c2059a",
+      "userId": "a50958a7-13df-452d-a273-f4c2c0cc930f",
+      "formTitle": "Apply to Y Combinator",
+      "websiteName": "apply.ycombinator.com",
+      "formUrl": "https://apply.ycombinator.com/apps/de78c582-73e7-4955-a698-b88c9b745aee/edit",
+      "examCategory": "Startup / Accelerator",
+      "status": "submitted",
+      "modelName": "googleai/gemini-2.5-flash",
+      "startedAt": "2026-03-21T19:20:03.211Z",
+      "submittedAt": "2026-03-21T19:20:56.046Z",
+      "updatedAt": "2026-03-21T19:20:56.046Z",
+      "creditsUsed": 3.7938,
+      "totalTokens": 21077,
+      "agentCount": 11,
+      "agentLogs": [
+        {
+          "id": "72da91b3-3461-451c-8c32-10a282782f0e",
+          "agentName": "intent_classifier",
+          "modelName": "googleai/gemini-2.5-flash",
+          "inputTokens": 159,
+          "outputTokens": 7,
+          "totalTokens": 205,
+          "creditsUsed": 0.0369,
+          "createdAt": "2026-03-21T19:20:05.328Z",
+          "metadata": {
+            "intentType": "chat",
+            "usageSource": "provider",
+            "providerUsage": {
+              "inputTokens": 159,
+              "outputTokens": 7,
+              "totalTokens": 205,
+              "inputImages": 0,
+              "outputImages": 0,
+              "thoughtsTokens": 39
+            },
+            "durationMs": 1427,
+            "success": true,
+            "error": null
+          }
+        },
+        {
+          "id": "f1a97ee0-4979-467c-96c5-372299b8bf8b",
+          "agentName": "field_selector",
+          "modelName": "googleai/gemini-2.5-flash",
+          "inputTokens": 973,
+          "outputTokens": 44,
+          "totalTokens": 1069,
+          "creditsUsed": 0.1924,
+          "createdAt": "2026-03-21T19:20:06.913Z",
+          "metadata": {
+            "availableFields": 28,
+            "usageSource": "provider",
+            "providerUsage": {
+              "inputTokens": 973,
+              "outputTokens": 44,
+              "totalTokens": 1069,
+              "inputImages": 0,
+              "outputImages": 0,
+              "thoughtsTokens": 52
+            },
+            "durationMs": 1584,
+            "success": true,
+            "error": null
+          }
+        },
+        {
+          "id": "fa6d3102-ea7b-47d4-8e0a-6b766e9fe428",
+          "agentName": "doc_router",
+          "modelName": "googleai/gemini-2.5-flash",
+          "inputTokens": 1352,
+          "outputTokens": 655,
+          "totalTokens": 5590,
+          "creditsUsed": 1.0062,
+          "createdAt": "2026-03-21T19:20:23.889Z",
+          "metadata": {
+            "questionCount": 27,
+            "mode": "autofill",
+            "usageSource": "provider",
+            "providerUsage": {
+              "inputTokens": 1352,
+              "outputTokens": 655,
+              "totalTokens": 5590,
+              "inputImages": 0,
+              "outputImages": 0,
+              "thoughtsTokens": 3583
+            },
+            "durationMs": 16965,
+            "success": true,
+            "error": null
+          }
+        },
+        {
+          "id": "94874366-7391-4e6c-9dbc-c0798edc8c17",
+          "agentName": "profile_extractor",
+          "modelName": "googleai/gemini-2.5-flash",
+          "inputTokens": 1332,
+          "outputTokens": 187,
+          "totalTokens": 2764,
+          "creditsUsed": 0.4975,
+          "createdAt": "2026-03-21T19:20:30.480Z",
+          "metadata": {
+            "source": "profile",
+            "questionCount": 11,
+            "usageSource": "provider",
+            "providerUsage": {
+              "inputTokens": 1332,
+              "outputTokens": 187,
+              "totalTokens": 2764,
+              "inputImages": 0,
+              "outputImages": 0,
+              "thoughtsTokens": 1245
+            },
+            "durationMs": 6589,
+            "success": true,
+            "error": null
+          }
+        },
+        {
+          "id": "dc4ff034-8004-4775-8bbd-7698e326f864",
+          "agentName": "document_extractor",
+          "modelName": "googleai/gemini-2.5-flash",
+          "inputTokens": 5029,
+          "outputTokens": 1003,
+          "totalTokens": 9700,
+          "creditsUsed": 1.746,
+          "createdAt": "2026-03-21T19:20:42.101Z",
+          "metadata": {
+            "source": "pitch_deck",
+            "questionCount": 16,
+            "usageSource": "provider",
+            "providerUsage": {
+              "inputTokens": 5029,
+              "outputTokens": 1003,
+              "totalTokens": 9700,
+              "inputImages": 0,
+              "outputImages": 0,
+              "thoughtsTokens": 3668
+            },
+            "durationMs": 18210,
+            "success": true,
+            "error": null
+          }
+        },
+        {
+          "id": "fc422062-34f9-41ed-9e29-fe58ce64292e",
+          "agentName": "option_resolver",
+          "modelName": "googleai/gemini-2.5-flash",
+          "inputTokens": 287,
+          "outputTokens": 7,
+          "totalTokens": 419,
+          "creditsUsed": 0.0754,
+          "createdAt": "2026-03-21T19:20:43.838Z",
+          "metadata": {
+            "optionCount": 44,
+            "fieldLabel": "Which category best applies to your company?",
+            "usageSource": "provider",
+            "providerUsage": {
+              "inputTokens": 287,
+              "outputTokens": 7,
+              "totalTokens": 419,
+              "inputImages": 0,
+              "outputImages": 0,
+              "thoughtsTokens": 125
+            },
+            "durationMs": 1736,
+            "success": true,
+            "error": null
+          }
+        },
+        {
+          "id": "96ed5c7d-8a56-444f-b749-e4fa4e42d73c",
+          "agentName": "option_resolver",
+          "modelName": "googleai/gemini-2.5-flash",
+          "inputTokens": 161,
+          "outputTokens": 6,
+          "totalTokens": 271,
+          "creditsUsed": 0.0488,
+          "createdAt": "2026-03-21T19:20:45.496Z",
+          "metadata": {
+            "optionCount": 2,
+            "fieldLabel": "Are people using your product?",
+            "usageSource": "provider",
+            "providerUsage": {
+              "inputTokens": 161,
+              "outputTokens": 6,
+              "totalTokens": 271,
+              "inputImages": 0,
+              "outputImages": 0,
+              "thoughtsTokens": 104
+            },
+            "durationMs": 1657,
+            "success": true,
+            "error": null
+          }
+        },
+        {
+          "id": "a57e9b3f-e1d8-48d5-9cf0-5ab86670bb80",
+          "agentName": "option_resolver",
+          "modelName": "googleai/gemini-2.5-flash",
+          "inputTokens": 199,
+          "outputTokens": 7,
+          "totalTokens": 351,
+          "creditsUsed": 0.0632,
+          "createdAt": "2026-03-21T19:20:47.140Z",
+          "metadata": {
+            "optionCount": 2,
+            "fieldLabel": "Do you have revenue?",
+            "usageSource": "provider",
+            "providerUsage": {
+              "inputTokens": 199,
+              "outputTokens": 7,
+              "totalTokens": 351,
+              "inputImages": 0,
+              "outputImages": 0,
+              "thoughtsTokens": 145
+            },
+            "durationMs": 1643,
+            "success": true,
+            "error": null
+          }
+        },
+        {
+          "id": "58b2e8c8-7786-411e-8a39-b47b1021b226",
+          "agentName": "option_resolver",
+          "modelName": "googleai/gemini-2.5-flash",
+          "inputTokens": 129,
+          "outputTokens": 6,
+          "totalTokens": 226,
+          "creditsUsed": 0.0407,
+          "createdAt": "2026-03-21T19:20:48.746Z",
+          "metadata": {
+            "optionCount": 2,
+            "fieldLabel": "Have you formed ANY legal entity yet?",
+            "usageSource": "provider",
+            "providerUsage": {
+              "inputTokens": 129,
+              "outputTokens": 6,
+              "totalTokens": 226,
+              "inputImages": 0,
+              "outputImages": 0,
+              "thoughtsTokens": 91
+            },
+            "durationMs": 1606,
+            "success": true,
+            "error": null
+          }
+        },
+        {
+          "id": "f084bf35-ec90-4f6b-900d-cf204062ff16",
+          "agentName": "option_resolver",
+          "modelName": "googleai/gemini-2.5-flash",
+          "inputTokens": 135,
+          "outputTokens": 7,
+          "totalTokens": 229,
+          "creditsUsed": 0.0412,
+          "createdAt": "2026-03-21T19:20:50.211Z",
+          "metadata": {
+            "optionCount": 2,
+            "fieldLabel": "Have you taken any investment yet?",
+            "usageSource": "provider",
+            "providerUsage": {
+              "inputTokens": 135,
+              "outputTokens": 7,
+              "totalTokens": 229,
+              "inputImages": 0,
+              "outputImages": 0,
+              "thoughtsTokens": 87
+            },
+            "durationMs": 1465,
+            "success": true,
+            "error": null
+          }
+        },
+        {
+          "id": "12bd9773-a5cf-4a45-9e29-b176ceee567a",
+          "agentName": "option_resolver",
+          "modelName": "googleai/gemini-2.5-flash",
+          "inputTokens": 146,
+          "outputTokens": 7,
+          "totalTokens": 253,
+          "creditsUsed": 0.0455,
+          "createdAt": "2026-03-21T19:20:51.853Z",
+          "metadata": {
+            "optionCount": 2,
+            "fieldLabel": "Are you currently fundraising?",
+            "usageSource": "provider",
+            "providerUsage": {
+              "inputTokens": 146,
+              "outputTokens": 7,
+              "totalTokens": 253,
+              "inputImages": 0,
+              "outputImages": 0,
+              "thoughtsTokens": 100
+            },
+            "durationMs": 1642,
+            "success": true,
+            "error": null
+          }
+        }
+      ],
+      "documents": [],
+      "metadata": {
+        "message": "fill the form",
+        "source": "extension_chat",
+        "mirroredFrom": "extension_backend",
+        "originSessionId": "69beef98e3ed7325d7b91ed4"
+      }
+    }
+  ]
+}

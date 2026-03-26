@@ -1,0 +1,19 @@
+{
+  "name": "sabapplier-monorepo",
+  "version": "0.0.0",
+  "private": true,
+  "workspaces": [
+    "apps/*"
+  ],
+  "scripts": {
+    "dev:website": "npm run dev --workspace=website",
+    "dev:backend": "npm run dev --workspace=backend",
+    "build:website": "npm run build --workspace=website",
+    "build:backend": "npm run build --workspace=backend"
+  },
+  "dependencies": {
+    "@google/genai": "^1.44.0",
+    "pino": "^10.3.1",
+    "pino-pretty": "^13.1.3"
+  }
+}

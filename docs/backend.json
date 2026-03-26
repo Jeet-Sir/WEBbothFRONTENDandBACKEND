@@ -1,0 +1,43 @@
+
+{
+  "entities": {
+    "UserProfile": {
+      "title": "User Profile",
+      "description": "Comprehensive identity data for a vault user.",
+      "type": "object",
+      "properties": {
+        "email": { "type": "string", "format": "email" },
+        "fullName": { "type": "string" },
+        "firstName": { "type": "string" },
+        "middleName": { "type": "string" },
+        "lastName": { "type": "string" },
+        "dob": { "type": "string", "format": "date" },
+        "phone": { "type": "string" },
+        "permanentAddress": { "type": "string" },
+        "motherTongue": { "type": "string" },
+        "gender": { "type": "string" },
+        "highestQualification": { "type": "string" },
+        "professions": { "type": "array", "items": { "type": "string" } },
+        "socialCategory": { "type": "string" },
+        "religion": { "type": "string" },
+        "nationality": { "type": "string" },
+        "domicileState": { "type": "string" },
+        "district": { "type": "string" },
+        "pincode": { "type": "string" },
+        "onboardingComplete": { "type": "boolean" },
+        "onboardingStep": { "type": "number" },
+        "documents": { "type": "object" }
+      },
+      "required": ["email", "fullName"]
+    }
+  },
+  "auth": {
+    "providers": ["google.com"]
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "UserProfile",
+      "description": "Storage for user identity and vault metadata."
+    }
+  }
+}

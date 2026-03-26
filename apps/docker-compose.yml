@@ -1,0 +1,70 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: sabapplier-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-sabapplier}
+      POSTGRES_USER: ${POSTGRES_USER:-sabapplier}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-sabapplier}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-sabapplier} -d ${POSTGRES_DB:-sabapplier}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build:
+      context: ..
+      dockerfile: apps/docker/node.dev.Dockerfile
+    container_name: sabapplier-backend
+    restart: unless-stopped
+    working_dir: /workspace
+    command: npm run dev --workspace=backend
+    environment:
+      PORT: 4000
+      JWT_SECRET: ${JWT_SECRET:-dev-jwt-secret}
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:3000}
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_NAME: ${POSTGRES_DB:-sabapplier}
+      DB_USER: ${POSTGRES_USER:-sabapplier}
+      DB_PASSWORD: ${POSTGRES_PASSWORD:-sabapplier}
+      DB_REJECT_UNAUTHORIZED: "false"
+      CHOKIDAR_USEPOLLING: "true"
+    ports:
+      - "4000:4000"
+    volumes:
+      - ./backend:/workspace/apps/backend
+    depends_on:
+      db:
+        condition: service_healthy
+
+  website:
+    build:
+      context: ..
+      dockerfile: apps/docker/node.dev.Dockerfile
+    container_name: sabapplier-website
+    restart: unless-stopped
+    working_dir: /workspace
+    command: npm run dev --workspace=website -- --hostname 0.0.0.0 --port 3000
+    environment:
+      NEXT_PUBLIC_API_BASE_URL: ${NEXT_PUBLIC_API_BASE_URL:-http://localhost:4000}
+      CHOKIDAR_USEPOLLING: "true"
+      WATCHPACK_POLLING: "true"
+      NEXT_TELEMETRY_DISABLED: "1"
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./website:/workspace/apps/website
+      - website_next_cache:/workspace/apps/website/.next
+    depends_on:
+      - backend
+
+volumes:
+  postgres_data:
+  website_next_cache:
