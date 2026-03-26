@@ -1,0 +1,188 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 210 20% 98%;
+    --foreground: 222 47% 11%;
+    --card: 0 0% 100%;
+    --card-foreground: 222 47% 11%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 47% 11%;
+    --primary: 224 61% 47%;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222 47% 11%;
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222 47% 11%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 224 61% 47%;
+    --radius: 1rem;
+    --chart-1: 12 76% 61%;
+    --chart-2: 173 58% 39%;
+    --chart-3: 197 37% 24%;
+    --chart-4: 43 74% 66%;
+    --chart-5: 27 87% 67%;
+  }
+
+  .dark {
+    --background: 222 47% 11%;
+    --foreground: 210 40% 98%;
+    --card: 222 47% 11%;
+    --card-foreground: 210 40% 98%;
+    --popover: 222 47% 11%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 210 40% 98%;
+    --primary-foreground: 222 47% 11%;
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 212.7 26.8% 83.9%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+.glass-nav {
+  @apply bg-[#2F56C0] border-b border-white/10 shadow-lg;
+}
+
+.dashboard-shell {
+  background: #ffffff;
+}
+
+:root {
+  --brand-blue: #2F56C0;
+  --brand-blue-hover: #284aa8;
+  --brand-blue-soft: #eef2ff;
+  --brand-blue-border: #c5d3f7;
+  --brand-blue-text: #1f3f87;
+}
+
+.dashboard-card {
+  @apply bg-white border border-slate-200 shadow-sm;
+}
+
+.dashboard-muted-card {
+  @apply bg-slate-50 border border-slate-200;
+}
+
+/* Match logged-in dashboard text/card tone with landing page */
+.dashboard-shell .text-primary {
+  color: #111827;
+}
+
+.dashboard-shell .text-muted-foreground {
+  color: #6b7280;
+}
+
+/* Custom typewriter animations for Hero component */
+.typewriter,
+.typewriter-delay,
+.typewriter-delay-2,
+.typewriter-delay-3 {
+  display: inline-block;
+  overflow: hidden;
+  white-space: nowrap;
+  width: 0;
+  border-right: 2px solid #3b82f6;
+  animation-fill-mode: forwards;
+}
+
+.typewriter {
+  animation: typewriter 2s steps(12) forwards, blink 1s infinite 2s;
+}
+
+.typewriter-delay {
+  animation: typewriter 2s steps(18) 0.5s forwards, blink 1s infinite 2.5s;
+}
+
+.typewriter-delay-2 {
+  animation: typewriter 2s steps(14) 1s forwards, blink 1s infinite 3s;
+}
+
+.typewriter-delay-3 {
+  animation: typewriter 2s steps(8) 1.5s forwards, blink 1s infinite 3.5s;
+}
+
+@keyframes typewriter {
+  from {
+    width: 0;
+  }
+
+  to {
+    width: 100%;
+  }
+}
+
+@keyframes blink {
+
+  0%,
+  50% {
+    border-color: #3b82f6;
+  }
+
+  51%,
+  100% {
+    border-color: transparent;
+  }
+}
+
+/* Smooth scrolling for anchor links */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Enhanced animations */
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+.animate-slide-in {
+  animation: slide-in 2s ease-out forwards;
+}
+
+.animate-slide-in-delay {
+  animation: slide-in-delay 2s ease-out 0.5s forwards;
+}
+
+.animate-slide-in-delay-2 {
+  animation: slide-in-delay-2 2s ease-out 1s forwards;
+}
+
+.animate-slide-in-delay-3 {
+  animation: slide-in-delay-3 2s ease-out 1.5s forwards;
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up 1s ease-out 2s forwards;
+}
+
+.animate-shimmer {
+  animation: shimmer 3s ease-in-out infinite;
+}
+
+.animate-bounce-slow {
+  animation: bounce-slow 3s ease-in-out infinite;
+}
