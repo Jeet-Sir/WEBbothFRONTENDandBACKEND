@@ -1,9 +1,11 @@
 import {
   ActivityFilters,
+  DocumentCreditEventsResponse,
   ActivitySessionDetailResponse,
   ActivitySessionsResponse,
   CreditEvent,
   CreditEventType,
+  CreditPurchaseType,
   FormSession,
   SessionStatus,
   UserProfile,
@@ -89,6 +91,74 @@ export async function saveProfile(token: string, data: Partial<UserProfile>): Pr
       Authorization: `Bearer ${token}`,
     },
     body: JSON.stringify(data),
+  });
+}
+
+export async function createCheckoutIntent(
+  token: string,
+  purchaseType: CreditPurchaseType
+): Promise<{ ok: true; user: UserProfile; purchaseType: CreditPurchaseType }> {
+  return apiRequest('/payments/checkout-intent', {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({ purchaseType }),
+  });
+}
+
+export async function createTopUpPaymentLink(
+  token: string
+): Promise<{
+  ok: true;
+  user: UserProfile;
+  paymentLinkId: string;
+  shortUrl: string;
+  status: string;
+  referenceId?: string;
+}> {
+  return apiRequest('/payments/top-ups/10', {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({}),
+  });
+}
+
+export async function createMonthlySubscription(
+  token: string
+): Promise<{
+  ok: true;
+  user: UserProfile;
+  subscriptionId: string;
+  shortUrl: string;
+  status: string;
+  reused?: boolean;
+}> {
+  return apiRequest('/payments/subscriptions/monthly', {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({}),
+  });
+}
+
+export async function syncMonthlySubscription(
+  token: string
+): Promise<{
+  ok: true;
+  user: UserProfile;
+  synced: boolean;
+  status?: string;
+}> {
+  return apiRequest('/payments/subscriptions/sync', {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({}),
   });
 }
 
@@ -179,6 +249,16 @@ export async function fetchActivitySessionDetail(
   sessionId: string
 ): Promise<ActivitySessionDetailResponse> {
   return apiRequest(`/activity/sessions/${sessionId}`, {
+    method: 'GET',
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+    cache: 'no-store',
+  });
+}
+
+export async function fetchDocumentCreditEvents(token: string): Promise<DocumentCreditEventsResponse> {
+  return apiRequest('/activity/document-events', {
     method: 'GET',
     headers: {
       Authorization: `Bearer ${token}`,

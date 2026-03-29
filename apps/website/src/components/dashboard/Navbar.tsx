@@ -2,22 +2,41 @@
 
 import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
-import { DashboardTab, UserProfile } from '@/lib/types';
-import { LogOut, Home, FileText, Share2, User, Menu, ChevronDown, Activity } from 'lucide-react';
+import { ActivitySummary, DashboardTab, UserProfile } from '@/lib/types';
+import { getCreditOverview } from '@/lib/credit-plans';
+import { LogOut, Home, FileText, Share2, User, Menu, ChevronDown, Activity, Coins } from 'lucide-react';
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 
 interface NavbarProps {
   user: UserProfile;
+  summary?: ActivitySummary | null;
   activeTab: DashboardTab;
   setActiveTab: (tab: DashboardTab) => void;
   onLogout: () => void;
+  billingSyncState?: 'idle' | 'polling' | 'success' | 'error';
+  billingSyncLabel?: string | null;
 }
 
-export const Navbar: React.FC<NavbarProps> = ({ user, activeTab, setActiveTab, onLogout }) => {
+export const Navbar: React.FC<NavbarProps> = ({
+  user,
+  summary,
+  activeTab,
+  setActiveTab,
+  onLogout,
+  billingSyncState = 'idle',
+  billingSyncLabel = null,
+}) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [avatarLoadFailed, setAvatarLoadFailed] = useState(false);
   const userInitial = user.firstName?.[0] || user.fullName?.[0] || 'U';
+  const creditOverview = getCreditOverview(user, summary);
+  const creditBadgeLabel =
+    creditOverview.plan === 'monthly_100'
+      ? `${creditOverview.includedRemainingCredits.toFixed(2)} cycle left${
+          creditOverview.topUpReserveCredits > 0 ? ` • ${creditOverview.topUpReserveCredits.toFixed(2)} reserve` : ''
+        }`
+      : `${creditOverview.remainingCredits.toFixed(2)} credits left`;
 
   useEffect(() => {
     setAvatarLoadFailed(false);
@@ -32,6 +51,7 @@ export const Navbar: React.FC<NavbarProps> = ({ user, activeTab, setActiveTab, o
     { key: 'activity', label: 'My Activity', icon: <Activity className="w-4 h-4" /> },
     { key: 'documents', label: 'Vault', icon: <FileText className="w-4 h-4" /> },
     { key: 'sharing', label: 'Sharing', icon: <Share2 className="w-4 h-4" /> },
+    { key: 'pricing', label: 'Pricing', icon: <Coins className="w-4 h-4" /> },
     { key: 'profile', label: 'Profile', icon: <User className="w-4 h-4" /> },
   ];
 
@@ -68,6 +88,30 @@ export const Navbar: React.FC<NavbarProps> = ({ user, activeTab, setActiveTab, o
         </div>
 
         <div className="flex items-center gap-4">
+          {billingSyncState !== 'idle' && billingSyncLabel ? (
+            <div
+              className={`hidden lg:flex items-center gap-2 rounded-xl border px-3 py-2 text-xs font-bold ${
+                billingSyncState === 'error'
+                  ? 'border-rose-200 bg-rose-50 text-rose-700'
+                  : billingSyncState === 'success'
+                    ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
+                    : 'border-[#c9d8ff] bg-white/90 text-[#1f3f87]'
+              }`}
+            >
+              <span>{billingSyncState === 'polling' ? 'Syncing payment...' : billingSyncLabel}</span>
+            </div>
+          ) : null}
+          <div className={`hidden lg:flex items-center gap-2 rounded-xl border px-3 py-2 text-sm font-bold ${
+            creditOverview.isExhausted
+              ? 'border-rose-200 bg-rose-50 text-rose-700'
+              : creditOverview.isLow
+                ? 'border-amber-200 bg-amber-50 text-amber-800'
+                : 'border-white/15 bg-white/10 text-white'
+          }`}>
+            <Coins className="h-4 w-4" />
+            <span>{creditBadgeLabel}</span>
+          </div>
+
           <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
             <SheetTrigger asChild>
               <button
@@ -81,7 +125,7 @@ export const Navbar: React.FC<NavbarProps> = ({ user, activeTab, setActiveTab, o
               <SheetHeader>
                 <SheetTitle className="text-white">Menu</SheetTitle>
                 <SheetDescription className="text-white/70">
-                  Navigate to Home, My Activity, Vault, Sharing, and Profile.
+                  Navigate to Home, My Activity, Vault, Sharing, Pricing, and Profile.
                 </SheetDescription>
               </SheetHeader>
               <div className="mt-6 flex flex-col gap-3">

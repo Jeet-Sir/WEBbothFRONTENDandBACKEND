@@ -101,6 +101,10 @@ export const profilePatchSchema = z
   })
   .strict();
 
+export const checkoutIntentSchema = z.object({
+  purchaseType: z.enum(['monthly_100', 'top_up_10']),
+});
+
 export const onboardSchema = z.object({
   step: z.number().int().min(1).max(4),
   onboardingComplete: z.boolean().optional(),

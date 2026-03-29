@@ -6,6 +6,7 @@ import {
   CreditEvent,
   CreditEventType,
   FormSession,
+  MonetaryPrice,
   SessionAgentLog,
   SessionDocumentUsage,
   SessionStatus,
@@ -107,6 +108,17 @@ const MODEL_CREDIT_RATES: Record<string, number> = {
 };
 
 const DEFAULT_CREDITS_PER_1K_TOKENS = 0.2;
+const USD_TO_INR = 94.8;
+const PRICE_MARGIN_MULTIPLIER = 2;
+const MONTHLY_PLAN_PRICE_INR = 155;
+const MONTHLY_PLAN_CREDITS = 100;
+const INR_PER_APP_CREDIT = MONTHLY_PLAN_PRICE_INR / MONTHLY_PLAN_CREDITS;
+const MODEL_TOKEN_PRICING_USD_PER_MILLION: Record<string, { input: number; output: number }> = {
+  'googleai/gemini-2.5-flash': {
+    input: 0.3,
+    output: 2.5,
+  },
+};
 
 let mongoClientPromise: Promise<MongoClient> | null = null;
 let indexesReadyPromise: Promise<void> | null = null;
@@ -189,8 +201,74 @@ function getBillingPeriod(dateIso: string): string {
   return new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), 1)).toISOString().slice(0, 10);
 }
 
+function getSubscriptionCycleRange(userProfile?: UserProfile | null): { start: Date; end: Date } | null {
+  const start = userProfile?.subscriptionCurrentStart ? new Date(userProfile.subscriptionCurrentStart) : null;
+  const end = userProfile?.subscriptionCurrentEnd ? new Date(userProfile.subscriptionCurrentEnd) : null;
+
+  if (!start || !end || Number.isNaN(start.getTime()) || Number.isNaN(end.getTime()) || start >= end) {
+    return null;
+  }
+
+  return { start, end };
+}
+
 function roundCredits(value: number): number {
   return Number(Number(value || 0).toFixed(4));
+}
+
+function roundPrice(value: number): number {
+  return Number(Number(value || 0).toFixed(6));
+}
+
+function calculateUsdChargeFromTokens(inputTokens: number, totalTokens: number, modelName: string): number | undefined {
+  const rates = MODEL_TOKEN_PRICING_USD_PER_MILLION[modelName];
+  if (!rates) {
+    return undefined;
+  }
+
+  const safeInputTokens = Math.max(0, Math.round(inputTokens));
+  const safeTotalTokens = Math.max(0, Math.round(totalTokens));
+  const billableOutputTokens = Math.max(0, safeTotalTokens - safeInputTokens);
+  const baseCostUsd =
+    (safeInputTokens / 1_000_000) * rates.input + (billableOutputTokens / 1_000_000) * rates.output;
+  return baseCostUsd * PRICE_MARGIN_MULTIPLIER;
+}
+
+function calculatePriceFromTokens(inputTokens: number, totalTokens: number, modelName: string): MonetaryPrice | undefined {
+  const finalCostUsd = calculateUsdChargeFromTokens(inputTokens, totalTokens, modelName);
+  if (finalCostUsd == null) {
+    return undefined;
+  }
+
+  return {
+    usd: roundPrice(finalCostUsd),
+    inr: roundPrice(finalCostUsd * USD_TO_INR),
+  };
+}
+
+function calculateCreditsFromPriceInr(priceInr: number): number {
+  return roundCredits(priceInr / INR_PER_APP_CREDIT);
+}
+
+function getEffectiveCreditsUsed(inputTokens: number, totalTokens: number, modelName: string, storedCredits?: number): number {
+  const price = calculatePriceFromTokens(inputTokens, totalTokens, modelName);
+  if (price) {
+    return calculateCreditsFromPriceInr(price.inr);
+  }
+
+  return roundCredits(storedCredits ?? calculateCreditsUsed(totalTokens, modelName, inputTokens));
+}
+
+function sumPrices(values: Array<MonetaryPrice | undefined>): MonetaryPrice | undefined {
+  const definedValues = values.filter((value): value is MonetaryPrice => Boolean(value));
+  if (definedValues.length === 0 || definedValues.length !== values.length) {
+    return undefined;
+  }
+
+  return {
+    usd: roundPrice(definedValues.reduce((sum, value) => sum + value.usd, 0)),
+    inr: roundPrice(definedValues.reduce((sum, value) => sum + value.inr, 0)),
+  };
 }
 
 export function estimateTokenCount(value: unknown): number {
@@ -205,7 +283,12 @@ export function estimateTokenCount(value: unknown): number {
   return Math.max(1, Math.ceil(text.length / 4));
 }
 
-export function calculateCreditsUsed(totalTokens: number, modelName: string): number {
+export function calculateCreditsUsed(totalTokens: number, modelName: string, inputTokens = 0): number {
+  const price = calculatePriceFromTokens(inputTokens, totalTokens, modelName);
+  if (price != null) {
+    return calculateCreditsFromPriceInr(price.inr);
+  }
+
   const rate = MODEL_CREDIT_RATES[modelName] ?? DEFAULT_CREDITS_PER_1K_TOKENS;
   return roundCredits((Math.max(0, totalTokens) / 1000) * rate);
 }
@@ -223,7 +306,7 @@ function normalizeAgentLog(input: CreateSessionAgentInput): MongoSessionAgentLog
     creditsUsed:
       input.creditsUsed != null
         ? roundCredits(input.creditsUsed)
-        : calculateCreditsUsed(tokenCounts.totalTokens, input.modelName),
+        : calculateCreditsUsed(tokenCounts.totalTokens, input.modelName, tokenCounts.inputTokens),
     createdAt: new Date(input.createdAt || new Date().toISOString()),
     metadata: input.metadata,
   };
@@ -243,7 +326,7 @@ function normalizeDocumentUsage(input: CreateSessionDocumentInput): MongoSession
     creditsUsed:
       input.creditsUsed != null
         ? roundCredits(input.creditsUsed)
-        : calculateCreditsUsed(tokenCounts.totalTokens, input.modelName),
+        : calculateCreditsUsed(tokenCounts.totalTokens, input.modelName, tokenCounts.inputTokens),
     createdAt: new Date(input.createdAt || new Date().toISOString()),
     metadata: input.metadata,
   };
@@ -261,7 +344,34 @@ function duplicateKeyMatch(error: unknown, fieldName: string): boolean {
 function toPlainSession(sessionDoc: MongoFormSession | null): FormSession | null {
   if (!sessionDoc || !sessionDoc._id) return null;
 
-  return {
+  const agentLogs = (sessionDoc.agentLogs || []).map((agentLog) => ({
+    ...agentLog,
+    creditsUsed: getEffectiveCreditsUsed(
+      agentLog.inputTokens || 0,
+      agentLog.totalTokens || 0,
+      agentLog.modelName,
+      agentLog.creditsUsed
+    ),
+    price: calculatePriceFromTokens(agentLog.inputTokens || 0, agentLog.totalTokens || 0, agentLog.modelName),
+    createdAt: agentLog.createdAt.toISOString(),
+  }));
+  const documents = (sessionDoc.documents || []).map((documentUsage) => ({
+    ...documentUsage,
+    creditsUsed: getEffectiveCreditsUsed(
+      documentUsage.inputTokens || 0,
+      documentUsage.totalTokens || 0,
+      documentUsage.modelName,
+      documentUsage.creditsUsed
+    ),
+    price: calculatePriceFromTokens(
+      documentUsage.inputTokens || 0,
+      documentUsage.totalTokens || 0,
+      documentUsage.modelName
+    ),
+    createdAt: documentUsage.createdAt.toISOString(),
+  }));
+
+  const plainSession: FormSession = {
     id: String(sessionDoc._id),
     userId: sessionDoc.userId,
     formTitle: sessionDoc.formTitle,
@@ -273,21 +383,20 @@ function toPlainSession(sessionDoc: MongoFormSession | null): FormSession | null
     startedAt: sessionDoc.startedAt.toISOString(),
     submittedAt: sessionDoc.submittedAt ? sessionDoc.submittedAt.toISOString() : undefined,
     updatedAt: sessionDoc.updatedAt.toISOString(),
-    creditsUsed: roundCredits(sessionDoc.creditsUsed),
+    creditsUsed: roundCredits([...agentLogs, ...documents].reduce((sum, item) => sum + item.creditsUsed, 0)),
     totalTokens: sessionDoc.totalTokens || 0,
     agentCount: sessionDoc.agentCount || 0,
-    agentLogs: (sessionDoc.agentLogs || []).map((agentLog) => ({
-      ...agentLog,
-      creditsUsed: roundCredits(agentLog.creditsUsed),
-      createdAt: agentLog.createdAt.toISOString(),
-    })),
-    documents: (sessionDoc.documents || []).map((documentUsage) => ({
-      ...documentUsage,
-      creditsUsed: roundCredits(documentUsage.creditsUsed),
-      createdAt: documentUsage.createdAt.toISOString(),
-    })),
+    agentLogs,
+    documents,
     metadata: sessionDoc.metadata,
   };
+
+  plainSession.price = sumPrices([
+    ...plainSession.agentLogs.map((agentLog) => agentLog.price),
+    ...plainSession.documents.map((documentUsage) => documentUsage.price),
+  ]);
+
+  return plainSession;
 }
 
 function toPlainCreditEvent(event: MongoCreditEvent): CreditEvent {
@@ -301,7 +410,13 @@ function toPlainCreditEvent(event: MongoCreditEvent): CreditEvent {
     inputTokens: event.inputTokens || 0,
     outputTokens: event.outputTokens || 0,
     totalTokens: event.totalTokens || 0,
-    creditsUsed: roundCredits(event.creditsUsed),
+    creditsUsed: getEffectiveCreditsUsed(
+      event.inputTokens || 0,
+      event.totalTokens || 0,
+      event.modelName,
+      event.creditsUsed
+    ),
+    price: calculatePriceFromTokens(event.inputTokens || 0, event.totalTokens || 0, event.modelName),
     billingPeriod: event.billingPeriod,
     createdAt: event.createdAt.toISOString(),
     metadata: event.metadata,
@@ -310,6 +425,26 @@ function toPlainCreditEvent(event: MongoCreditEvent): CreditEvent {
 
 function escapeRegex(value: string): string {
   return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+function normalizeDocumentKey(value: string): string {
+  return value
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '_')
+    .replace(/^_+|_+$/g, '');
+}
+
+function getDocumentTypeFromStoragePath(storagePath: string): string | null {
+  const segments = storagePath
+    .replace(/^local:\/\//, '')
+    .split('/')
+    .map((segment) => segment.trim())
+    .filter(Boolean);
+  const documentsIndex = segments.lastIndexOf('documents');
+  const docType = documentsIndex >= 0 ? segments[documentsIndex + 1] : null;
+
+  return docType ? normalizeDocumentKey(docType) : null;
 }
 
 function buildSessionMatch(userId: string, filters: ActivityListFilters = {}) {
@@ -354,7 +489,7 @@ export async function createCreditEvent(input: CreateCreditEventInput): Promise<
     creditsUsed:
       input.creditsUsed != null
         ? roundCredits(input.creditsUsed)
-        : calculateCreditsUsed(tokenCounts.totalTokens, input.modelName),
+        : calculateCreditsUsed(tokenCounts.totalTokens, input.modelName, tokenCounts.inputTokens),
     billingPeriod: getBillingPeriod(createdAt),
     createdAt: new Date(createdAt),
     metadata: input.metadata,
@@ -430,22 +565,62 @@ export async function createFormSession(input: CreateFormSessionInput): Promise<
 export async function getActivitySummary(userId: string, userProfile?: UserProfile | null): Promise<ActivitySummary> {
   const { creditEvents, formSessions } = await getCollections();
   const currentBillingPeriod = getBillingPeriod(new Date().toISOString());
+  const subscriptionCycle = getSubscriptionCycleRange(userProfile);
   const docsUploaded = userProfile ? Object.keys(userProfile.documents || {}).length : 0;
 
-  const [submittedAgg, creditAgg, monthlyAgg] = await Promise.all([
+  const currentCycleMatch = subscriptionCycle
+    ? {
+        userId,
+        createdAt: {
+          $gte: subscriptionCycle.start,
+          $lt: subscriptionCycle.end,
+        },
+      }
+    : { userId, billingPeriod: currentBillingPeriod };
+
+  const [submittedAgg, allCreditEvents, monthlyCreditEvents, currentCycleCreditEvents] = await Promise.all([
     formSessions.aggregate([{ $match: { userId, status: 'submitted' } }, { $count: 'count' }]).toArray(),
-    creditEvents.aggregate([{ $match: { userId } }, { $group: { _id: null, total: { $sum: '$creditsUsed' } } }]).toArray(),
-    creditEvents.aggregate([
-      { $match: { userId, billingPeriod: currentBillingPeriod } },
-      { $group: { _id: null, total: { $sum: '$creditsUsed' } } },
-    ]).toArray(),
+    creditEvents.find({ userId }).project({ inputTokens: 1, totalTokens: 1, modelName: 1, creditsUsed: 1 }).toArray(),
+    creditEvents
+      .find({ userId, billingPeriod: currentBillingPeriod })
+      .project({ inputTokens: 1, totalTokens: 1, modelName: 1, creditsUsed: 1 })
+      .toArray(),
+    creditEvents.find(currentCycleMatch).project({ inputTokens: 1, totalTokens: 1, modelName: 1, creditsUsed: 1 }).toArray(),
   ]);
+
+  const sumCredits = (events: Array<{ inputTokens?: number; totalTokens?: number; modelName?: string; creditsUsed?: number }>) =>
+    roundCredits(
+      events.reduce(
+        (sum, event) =>
+          sum +
+          getEffectiveCreditsUsed(event.inputTokens || 0, event.totalTokens || 0, event.modelName || '', event.creditsUsed),
+        0
+      )
+    );
 
   return {
     totalFormsFilled: submittedAgg[0]?.count || 0,
-    totalCreditsUsed: roundCredits(creditAgg[0]?.total || 0),
+    totalCreditsUsed: sumCredits(allCreditEvents),
+    totalPrice: sumPrices(
+      allCreditEvents.map((event) =>
+        calculatePriceFromTokens(event.inputTokens || 0, event.totalTokens || 0, event.modelName || '')
+      )
+    ),
     docsUploaded,
-    creditsThisMonth: roundCredits(monthlyAgg[0]?.total || 0),
+    creditsThisMonth: sumCredits(monthlyCreditEvents),
+    priceThisMonth: sumPrices(
+      monthlyCreditEvents.map((event) =>
+        calculatePriceFromTokens(event.inputTokens || 0, event.totalTokens || 0, event.modelName || '')
+      )
+    ),
+    creditsCurrentCycle: sumCredits(currentCycleCreditEvents),
+    priceCurrentCycle: sumPrices(
+      currentCycleCreditEvents.map((event) =>
+        calculatePriceFromTokens(event.inputTokens || 0, event.totalTokens || 0, event.modelName || '')
+      )
+    ),
+    currentCycleStart: subscriptionCycle?.start.toISOString(),
+    currentCycleEnd: subscriptionCycle?.end.toISOString(),
   };
 }
 
@@ -512,4 +687,65 @@ export async function listCreditEvents(userId: string, sessionId?: string): Prom
 
   const events = await creditEvents.find(query).sort({ createdAt: -1 }).toArray();
   return events.map(toPlainCreditEvent);
+}
+
+export async function listDocumentCreditEvents(
+  userId: string,
+  userProfile?: UserProfile | null
+): Promise<CreditEvent[]> {
+  const { creditEvents } = await getCollections();
+  const currentDocuments = Object.entries(userProfile?.documents || {});
+  const currentDocTypes = new Set<string>();
+  const currentStoragePaths = new Set<string>();
+
+  currentDocuments.forEach(([documentKey, documentValue]) => {
+    const normalizedKey = normalizeDocumentKey(documentKey);
+    if (normalizedKey) {
+      currentDocTypes.add(normalizedKey);
+    }
+
+    const storagePath = typeof documentValue?.storagePath === 'string' ? documentValue.storagePath.trim() : '';
+    if (storagePath) {
+      currentStoragePaths.add(storagePath);
+      const docTypeFromPath = getDocumentTypeFromStoragePath(storagePath);
+      if (docTypeFromPath) {
+        currentDocTypes.add(docTypeFromPath);
+      }
+    }
+  });
+
+  const events = await creditEvents
+    .find({ userId, eventType: 'doc_upload_extract' })
+    .sort({ createdAt: -1 })
+    .toArray();
+
+  const seen = new Set<string>();
+  const latestEvents = events.filter((event) => {
+    const metadata = event.metadata || {};
+    const storagePath = typeof metadata.storagePath === 'string' ? metadata.storagePath.trim() : '';
+    const docType =
+      typeof metadata.docType === 'string' && metadata.docType.trim()
+        ? normalizeDocumentKey(metadata.docType)
+        : getDocumentTypeFromStoragePath(storagePath);
+
+    if (currentDocTypes.size > 0 || currentStoragePaths.size > 0) {
+      const matchesStoragePath = storagePath ? currentStoragePaths.has(storagePath) : false;
+      const matchesDocType = docType ? currentDocTypes.has(docType) : false;
+
+      if (!matchesStoragePath && !matchesDocType) {
+        return false;
+      }
+    }
+
+    const groupKey = storagePath || docType || String(event._id);
+
+    if (seen.has(groupKey)) {
+      return false;
+    }
+
+    seen.add(groupKey);
+    return true;
+  });
+
+  return latestEvents.map(toPlainCreditEvent);
 }

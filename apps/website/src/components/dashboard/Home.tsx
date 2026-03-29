@@ -1,7 +1,8 @@
 "use client";
 
 import React from 'react';
-import { UserProfile } from '@/lib/types';
+import { ActivitySummary, UserProfile } from '@/lib/types';
+import { getCreditOverview, getPlanPriceLabel } from '@/lib/credit-plans';
 import Footer from '@/components/landing/Footer';
 
 // Hardcoded official exam portals for competitive exams
@@ -131,6 +132,7 @@ interface HomeProps {
   applications?: typeof defaultApplications;
   loadingExams?: boolean;
   user?: UserProfile;
+  summary?: ActivitySummary | null;
 }
 
 const founderResources = [
@@ -151,8 +153,10 @@ const founderResources = [
   },
 ];
 
-export const Home: React.FC<HomeProps> = ({ applications = defaultApplications, loadingExams = false, user }) => {
+export const Home: React.FC<HomeProps> = ({ applications = defaultApplications, loadingExams = false, user, summary }) => {
   const isGlobalFounder = user?.marketSegment === 'global_founder';
+  const creditOverview = user ? getCreditOverview(user, summary) : null;
+  const planPriceLabel = getPlanPriceLabel(user?.countryCode);
 
   // Loading skeleton for 7 official portals
   const LoadingSkeleton = () => (
@@ -165,6 +169,25 @@ export const Home: React.FC<HomeProps> = ({ applications = defaultApplications, 
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-100 via-blue-50 to-slate-200">
         <main className="max-w-6xl mx-auto px-4 py-8">
+        {creditOverview && (creditOverview.isLow || creditOverview.isExhausted) ? (
+          <div className={`mb-8 rounded-2xl border px-5 py-4 ${creditOverview.isExhausted ? 'border-rose-200 bg-rose-50' : 'border-amber-200 bg-amber-50'}`}>
+            <div className={`text-base font-black ${creditOverview.isExhausted ? 'text-rose-700' : 'text-amber-800'}`}>
+              {creditOverview.isExhausted
+                ? creditOverview.plan === 'monthly_100'
+                  ? 'Your monthly cycle credits are exhausted.'
+                  : 'Your credits are exhausted.'
+                : creditOverview.plan === 'monthly_100'
+                  ? `Only ${creditOverview.includedRemainingCredits.toFixed(2)} cycle credits left.`
+                  : `Only ${creditOverview.remainingCredits.toFixed(2)} credits left.`}
+            </div>
+            <p className={`mt-1 text-sm font-medium ${creditOverview.isExhausted ? 'text-rose-700' : 'text-amber-800'}`}>
+              {creditOverview.plan === 'monthly_100'
+                ? 'Use the Pricing tab when this cycle reaches zero to unlock a 100-credit top-up.'
+                : `Subscribe to the 100-credit monthly plan for ${planPriceLabel} from the Pricing tab before your balance runs out.`}
+            </p>
+          </div>
+        ) : null}
+
           <div className="text-center mb-12">
             <h1 className="text-4xl md:text-5xl font-extrabold text-blue-900 mb-2 font-sans tracking-tight drop-shadow-sm" style={{ letterSpacing: '0.01em' }}>
               Founder workspace for <span className="bg-gradient-to-r from-blue-600 to-blue-400 text-white px-2 py-1 rounded shadow-sm inline-flex items-center gap-2">global startups</span>
@@ -244,6 +267,25 @@ export const Home: React.FC<HomeProps> = ({ applications = defaultApplications, 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-100 via-blue-50 to-slate-200">
       <main className="max-w-6xl mx-auto px-4 py-8">
+        {creditOverview && (creditOverview.isLow || creditOverview.isExhausted) ? (
+          <div className={`mb-8 rounded-2xl border px-5 py-4 ${creditOverview.isExhausted ? 'border-rose-200 bg-rose-50' : 'border-amber-200 bg-amber-50'}`}>
+            <div className={`text-base font-black ${creditOverview.isExhausted ? 'text-rose-700' : 'text-amber-800'}`}>
+              {creditOverview.isExhausted
+                ? creditOverview.plan === 'monthly_100'
+                  ? 'Your monthly cycle credits are exhausted.'
+                  : 'Your credits are exhausted.'
+                : creditOverview.plan === 'monthly_100'
+                  ? `Only ${creditOverview.includedRemainingCredits.toFixed(2)} cycle credits left.`
+                  : `Only ${creditOverview.remainingCredits.toFixed(2)} credits left.`}
+            </div>
+            <p className={`mt-1 text-sm font-medium ${creditOverview.isExhausted ? 'text-rose-700' : 'text-amber-800'}`}>
+              {creditOverview.plan === 'monthly_100'
+                ? 'Use the Pricing tab when this cycle reaches zero to unlock a 100-credit top-up.'
+                : `Upgrade to 100 credits per month for ${planPriceLabel} from the Pricing tab before your balance runs out.`}
+            </p>
+          </div>
+        ) : null}
+
         {/* Hero Section */}
         <div className="text-center mb-12">
           <h1 className="text-4xl md:text-5xl font-extrabold text-blue-900 mb-2 font-sans tracking-tight drop-shadow-sm" style={{letterSpacing: '0.01em'}}>

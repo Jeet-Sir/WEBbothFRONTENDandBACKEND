@@ -14,22 +14,31 @@ import {
   Search,
   Sparkles,
 } from 'lucide-react';
-import { fetchActivitySessionDetail, fetchActivitySessions } from '@/lib/api';
+import { fetchActivitySessionDetail, fetchActivitySessions, fetchDocumentCreditEvents } from '@/lib/api';
+import { getCreditOverview, getPlanPriceLabel } from '@/lib/credit-plans';
 import {
   ActivityFilters,
+  ActivitySummary,
+  CreditEvent,
   ActivitySessionDetailResponse,
   ActivitySessionsResponse,
+  MonetaryPrice,
   SessionStatus,
+  UserProfile,
 } from '@/lib/types';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 interface ActivityProps {
   authToken: string;
+  countryCode?: string;
+  user?: UserProfile;
+  summary?: ActivitySummary | null;
 }
 
 const STATUS_LABELS: Record<SessionStatus, string> = {
@@ -48,6 +57,38 @@ function formatCredits(value: number): string {
   return `${value.toFixed(value >= 10 ? 1 : 2).replace(/\.0$/, '')} credits`;
 }
 
+function getPrimaryCurrency(countryCode?: string): 'USD' | 'INR' {
+  return countryCode?.toUpperCase() === 'IN' ? 'INR' : 'USD';
+}
+
+function formatMoney(value: number, currency: 'USD' | 'INR'): string {
+  const maximumFractionDigits = value >= 1 ? 2 : value >= 0.01 ? 4 : 6;
+
+  return new Intl.NumberFormat(currency === 'INR' ? 'en-IN' : 'en-US', {
+    style: 'currency',
+    currency,
+    minimumFractionDigits: 0,
+    maximumFractionDigits,
+  }).format(value);
+}
+
+function formatPrice(price: MonetaryPrice | undefined, countryCode?: string): string {
+  if (!price) return 'Pricing unavailable';
+
+  const primaryCurrency = getPrimaryCurrency(countryCode);
+  return primaryCurrency === 'INR' ? formatMoney(price.inr, 'INR') : formatMoney(price.usd, 'USD');
+}
+
+function formatPricePair(price: MonetaryPrice | undefined, countryCode?: string): string {
+  if (!price) return 'Pricing unavailable for this model mix';
+
+  const primaryCurrency = getPrimaryCurrency(countryCode);
+  const primary = primaryCurrency === 'INR' ? formatMoney(price.inr, 'INR') : formatMoney(price.usd, 'USD');
+  const secondary = primaryCurrency === 'INR' ? formatMoney(price.usd, 'USD') : formatMoney(price.inr, 'INR');
+
+  return `${primary} • ${secondary}`;
+}
+
 function formatTokenCount(value: number): string {
   return new Intl.NumberFormat('en-US').format(value);
 }
@@ -62,6 +103,16 @@ function formatDateTime(value?: string): string {
   }
 }
 
+function formatCycleRange(start?: string, end?: string): string {
+  if (!start || !end) return 'Current billing cycle';
+
+  try {
+    return `${format(new Date(start), 'dd MMM')} - ${format(new Date(end), 'dd MMM yyyy')}`;
+  } catch {
+    return 'Current billing cycle';
+  }
+}
+
 function safeHostLabel(url: string): string {
   try {
     return new URL(url).hostname.replace(/^www\./, '');
@@ -70,12 +121,45 @@ function safeHostLabel(url: string): string {
   }
 }
 
-export const Activity: React.FC<ActivityProps> = ({ authToken }) => {
+function formatDocType(value: string): string {
+  return value
+    .replace(/_/g, ' ')
+    .replace(/\b\w/g, (char) => char.toUpperCase());
+}
+
+function getDocumentLabel(event: CreditEvent): string {
+  const metadata = event.metadata || {};
+  const storagePath = typeof metadata.storagePath === 'string' ? metadata.storagePath : '';
+  const fileUrl = typeof metadata.fileUrl === 'string' ? metadata.fileUrl : '';
+  const docType = typeof metadata.docType === 'string' ? metadata.docType : 'uploaded_document';
+
+  if (storagePath) {
+    const rawName = storagePath.split('/').pop() || storagePath;
+    return decodeURIComponent(rawName).replace(/^\d+_/, '');
+  }
+
+  if (fileUrl) {
+    try {
+      const pathname = new URL(fileUrl).pathname;
+      return decodeURIComponent(pathname.split('/').pop() || pathname).replace(/^\d+_/, '');
+    } catch {
+      return formatDocType(docType);
+    }
+  }
+
+  return formatDocType(docType);
+}
+
+export const Activity: React.FC<ActivityProps> = ({ authToken, countryCode, user, summary }) => {
   const [searchInput, setSearchInput] = useState('');
   const [filters, setFilters] = useState<ActivityFilters>({ page: 1, pageSize: 20 });
   const [activity, setActivity] = useState<ActivitySessionsResponse | null>(null);
   const [selectedSessionId, setSelectedSessionId] = useState<string | null>(null);
   const [detail, setDetail] = useState<ActivitySessionDetailResponse | null>(null);
+  const [documentEvents, setDocumentEvents] = useState<CreditEvent[]>([]);
+  const [documentEventsLoading, setDocumentEventsLoading] = useState(false);
+  const [documentEventsError, setDocumentEventsError] = useState<string | null>(null);
+  const [documentDialogOpen, setDocumentDialogOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [detailLoading, setDetailLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -160,7 +244,40 @@ export const Activity: React.FC<ActivityProps> = ({ authToken }) => {
     };
   }, [authToken, selectedSessionId]);
 
-  const summary = activity?.summary;
+  const activitySummary = activity?.summary;
+  const creditOverview = user ? getCreditOverview(user, summary || activitySummary) : null;
+  const planPriceLabel = getPlanPriceLabel(countryCode);
+  const cycleCreditsValue =
+    activitySummary && creditOverview?.plan === 'monthly_100'
+      ? activitySummary.creditsCurrentCycle ?? activitySummary.creditsThisMonth
+      : activitySummary?.creditsThisMonth;
+  const cyclePriceValue =
+    activitySummary && creditOverview?.plan === 'monthly_100'
+      ? activitySummary.priceCurrentCycle ?? activitySummary.priceThisMonth
+      : activitySummary?.priceThisMonth;
+  const cycleLabel = creditOverview?.plan === 'monthly_100' ? 'Credits This Cycle' : 'Credits This Month';
+  const cycleHelperText =
+    creditOverview?.plan === 'monthly_100'
+      ? formatCycleRange(activitySummary?.currentCycleStart, activitySummary?.currentCycleEnd)
+      : 'Current billing period';
+  const allowanceLabel =
+    creditOverview?.plan === 'monthly_100'
+      ? 'Cycle Credits Left'
+      : creditOverview?.hasPendingSubscriptionSetup
+        ? 'Subscription Status'
+        : 'Starter Credits Left';
+  const allowanceValue =
+    creditOverview?.hasPendingSubscriptionSetup
+      ? 'Pending'
+      : creditOverview
+        ? formatCredits(creditOverview.plan === 'monthly_100' ? creditOverview.includedRemainingCredits : creditOverview.remainingCredits)
+        : '--';
+  const allowanceHelper =
+    creditOverview?.plan === 'monthly_100'
+      ? `${cycleHelperText} • ${creditOverview.topUpReserveCredits.toFixed(2)} reserve`
+      : creditOverview?.hasPendingSubscriptionSetup
+        ? 'Razorpay checkout started, waiting for activation'
+        : 'Current available starter credits';
   const selectedSession = detail?.session || null;
   const chartData = selectedSession
     ? [
@@ -174,6 +291,28 @@ export const Activity: React.FC<ActivityProps> = ({ authToken }) => {
         })),
       ]
     : [];
+
+  const openDocumentDialog = () => {
+    setDocumentDialogOpen(true);
+
+    if (documentEvents.length > 0 || documentEventsLoading) {
+      return;
+    }
+
+    setDocumentEventsLoading(true);
+    setDocumentEventsError(null);
+
+    fetchDocumentCreditEvents(authToken)
+      .then((response) => {
+        setDocumentEvents(response.events || []);
+      })
+      .catch((fetchError) => {
+        setDocumentEventsError(fetchError instanceof Error ? fetchError.message : 'Failed to load document credit history.');
+      })
+      .finally(() => {
+        setDocumentEventsLoading(false);
+      });
+  };
 
   return (
     <div className="space-y-6">
@@ -197,30 +336,56 @@ export const Activity: React.FC<ActivityProps> = ({ authToken }) => {
         </div>
       </section>
 
-      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+      {creditOverview && (creditOverview.isLow || creditOverview.isExhausted) ? (
+        <div className={`rounded-[22px] border px-5 py-4 ${creditOverview.isExhausted ? 'border-rose-200 bg-rose-50' : 'border-amber-200 bg-amber-50'}`}>
+          <div className={`text-base font-black ${creditOverview.isExhausted ? 'text-rose-700' : 'text-amber-800'}`}>
+            {creditOverview.isExhausted
+              ? creditOverview.plan === 'monthly_100'
+                ? 'Your monthly cycle credits are exhausted.'
+                : 'Your credits are exhausted.'
+              : creditOverview.plan === 'monthly_100'
+                ? `Only ${creditOverview.includedRemainingCredits.toFixed(2)} cycle credits left.`
+                : `Only ${creditOverview.remainingCredits.toFixed(2)} credits left.`}
+          </div>
+          <p className={`mt-1 text-sm font-medium ${creditOverview.isExhausted ? 'text-rose-700' : 'text-amber-800'}`}>
+            {creditOverview.plan === 'monthly_100'
+              ? `Use the Pricing tab when this cycle hits zero to unlock a 100-credit top-up and keep filling forms without interruption.`
+              : `Subscribe to 100 credits per month for ${planPriceLabel} from the Pricing tab before your balance runs out.`}
+          </p>
+        </div>
+      ) : null}
+
+      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
         <SummaryCard
           icon={<FileClock className="h-5 w-5 text-[#2F56C0]" />}
           label="Total Forms Filled"
-          value={summary ? String(summary.totalFormsFilled) : '--'}
+          value={activitySummary ? String(activitySummary.totalFormsFilled) : '--'}
           helper="Submitted sessions"
         />
         <SummaryCard
           icon={<Coins className="h-5 w-5 text-[#2F56C0]" />}
           label="Total Credits Used"
-          value={summary ? formatCredits(summary.totalCreditsUsed) : '--'}
-          helper="Across tracked activity"
+          value={activitySummary ? formatCredits(activitySummary.totalCreditsUsed) : '--'}
+          helper={activitySummary ? formatPricePair(activitySummary.totalPrice, countryCode) : 'Across tracked activity'}
+        />
+        <SummaryCard
+          icon={<Sparkles className="h-5 w-5 text-[#2F56C0]" />}
+          label={allowanceLabel}
+          value={allowanceValue}
+          helper={allowanceHelper}
         />
         <SummaryCard
           icon={<FileText className="h-5 w-5 text-[#2F56C0]" />}
           label="Docs Uploaded"
-          value={summary ? String(summary.docsUploaded) : '--'}
+          value={activitySummary ? String(activitySummary.docsUploaded) : '--'}
           helper="Current vault count"
+          onClick={openDocumentDialog}
         />
         <SummaryCard
           icon={<CalendarDays className="h-5 w-5 text-[#2F56C0]" />}
-          label="Credits This Month"
-          value={summary ? formatCredits(summary.creditsThisMonth) : '--'}
-          helper="Current billing period"
+          label={cycleLabel}
+          value={activitySummary && cycleCreditsValue != null ? formatCredits(cycleCreditsValue) : '--'}
+          helper={activitySummary ? `${formatPricePair(cyclePriceValue, countryCode)} • ${cycleHelperText}` : cycleHelperText}
         />
       </section>
 
@@ -394,6 +559,7 @@ export const Activity: React.FC<ActivityProps> = ({ authToken }) => {
 
                           <div className="grid gap-2 text-sm text-slate-500 lg:text-right">
                             <div className="font-semibold text-[#17316d]">{formatCredits(session.creditsUsed)}</div>
+                            <div>{formatPrice(session.price, countryCode)}</div>
                             <div>{formatDateTime(session.submittedAt || session.updatedAt)}</div>
                             <div>{formatTokenCount(session.totalTokens)} tokens</div>
                           </div>
@@ -482,6 +648,7 @@ export const Activity: React.FC<ActivityProps> = ({ authToken }) => {
                     <DetailStat label="Model" value={selectedSession.modelName} />
                     <DetailStat label="Submitted" value={formatDateTime(selectedSession.submittedAt || selectedSession.updatedAt)} />
                     <DetailStat label="Total Session Credits" value={formatCredits(selectedSession.creditsUsed)} />
+                    <DetailStat label="Estimated Price" value={formatPricePair(selectedSession.price, countryCode)} />
                     <DetailStat label="Total Tokens" value={formatTokenCount(selectedSession.totalTokens)} />
                     <DetailStat label="Agents Involved" value={String(selectedSession.agentCount)} />
                   </div>
@@ -534,6 +701,7 @@ export const Activity: React.FC<ActivityProps> = ({ authToken }) => {
                             </div>
                             <div className="text-right">
                               <div className="font-bold text-[#17316d]">{formatCredits(agent.creditsUsed)}</div>
+                              <div className="text-xs text-slate-500">{formatPrice(agent.price, countryCode)}</div>
                               <div className="text-xs text-slate-500">{formatTokenCount(agent.totalTokens)} tokens</div>
                             </div>
                           </div>
@@ -559,6 +727,7 @@ export const Activity: React.FC<ActivityProps> = ({ authToken }) => {
                           </div>
                           <div className="text-right">
                             <div className="font-bold text-[#17316d]">{formatCredits(document.creditsUsed)}</div>
+                            <div className="text-xs text-slate-500">{formatPrice(document.price, countryCode)}</div>
                             <div className="text-xs text-slate-500">{formatTokenCount(document.totalTokens)} tokens</div>
                           </div>
                         </div>
@@ -584,6 +753,7 @@ export const Activity: React.FC<ActivityProps> = ({ authToken }) => {
                             </div>
                             <div className="text-right">
                               <div className="font-bold text-[#17316d]">{formatCredits(event.creditsUsed)}</div>
+                              <div className="text-xs text-slate-500">{formatPrice(event.price, countryCode)}</div>
                               <div className="text-xs text-slate-500">{formatTokenCount(event.totalTokens)} tokens</div>
                             </div>
                           </div>
@@ -609,12 +779,103 @@ export const Activity: React.FC<ActivityProps> = ({ authToken }) => {
           </CardContent>
         </Card>
       </section>
+
+      <Dialog open={documentDialogOpen} onOpenChange={setDocumentDialogOpen}>
+        <DialogContent className="max-h-[85vh] max-w-3xl overflow-hidden rounded-[28px] border-[#dbe4fa] p-0">
+          <DialogHeader className="border-b border-[#e6edff] px-6 py-5">
+            <DialogTitle className="text-2xl font-black text-[#17316d]">Uploaded Document Credits</DialogTitle>
+            <DialogDescription>
+              Latest AI extraction credits for the documents currently available in your vault.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="max-h-[calc(85vh-110px)] space-y-4 overflow-y-auto px-6 py-5">
+            {documentEventsLoading ? (
+              <div className="flex min-h-[220px] items-center justify-center rounded-2xl border border-dashed border-[#cad8fb] bg-[#f8faff]">
+                <Loader2 className="h-6 w-6 animate-spin text-[#2F56C0]" />
+              </div>
+            ) : documentEventsError ? (
+              <div className="rounded-2xl border border-rose-200 bg-rose-50 p-5 text-sm font-medium text-rose-700">
+                {documentEventsError}
+              </div>
+            ) : documentEvents.length > 0 ? (
+              <div className="space-y-3">
+                {documentEvents.map((event) => {
+                  const metadata = event.metadata || {};
+                  const fileUrl = typeof metadata.fileUrl === 'string' ? metadata.fileUrl : null;
+                  const docType = typeof metadata.docType === 'string' ? metadata.docType : 'uploaded_document';
+                  const status = typeof metadata.status === 'string' ? metadata.status : 'verified';
+
+                  return (
+                    <div key={event.id} className="rounded-[22px] border border-[#e4ebfb] bg-white p-5 shadow-sm">
+                      <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+                        <div className="space-y-2">
+                          <div className="text-lg font-black text-[#17316d]">{getDocumentLabel(event)}</div>
+                          <div className="flex flex-wrap items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-slate-400">
+                            <span>{formatDocType(docType)}</span>
+                            <span>&bull;</span>
+                            <span>{status}</span>
+                            <span>&bull;</span>
+                            <span>{event.modelName}</span>
+                          </div>
+                          <div className="text-sm text-slate-500">{formatDateTime(event.createdAt)}</div>
+                        </div>
+
+                        <div className="grid gap-2 text-sm text-slate-500 lg:text-right">
+                          <div className="font-semibold text-[#17316d]">{formatCredits(event.creditsUsed)}</div>
+                          <div>{formatPrice(event.price, countryCode)}</div>
+                          <div>{formatTokenCount(event.totalTokens)} total tokens</div>
+                          <div>
+                            {formatTokenCount(event.inputTokens)} in • {formatTokenCount(event.outputTokens)} out
+                          </div>
+                          {fileUrl ? (
+                            <a
+                              href={fileUrl}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="font-semibold text-[#2F56C0] hover:text-[#17316d]"
+                            >
+                              Open file
+                            </a>
+                          ) : null}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            ) : (
+              <div className="rounded-[24px] border border-dashed border-[#cad8fb] bg-[#f8faff] p-8 text-center">
+                <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-white shadow-sm">
+                  <FileText className="h-6 w-6 text-[#2F56C0]" />
+                </div>
+                <h3 className="mt-4 text-lg font-black text-[#17316d]">No uploaded document credits yet</h3>
+                <p className="mt-2 text-sm font-medium text-slate-500">
+                  When a vault document is processed, its extraction credits will appear here.
+                </p>
+              </div>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
 
-function SummaryCard({ icon, label, value, helper }: { icon: React.ReactNode; label: string; value: string; helper: string }) {
-  return (
+function SummaryCard({
+  icon,
+  label,
+  value,
+  helper,
+  onClick,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  value: string;
+  helper: React.ReactNode;
+  onClick?: () => void;
+}) {
+  const content = (
     <Card className="dashboard-card rounded-[24px] border-[#dbe4fa] bg-[linear-gradient(180deg,#ffffff_0%,#f8fbff_100%)]">
       <CardContent className="flex items-start justify-between p-5">
         <div>
@@ -625,6 +886,16 @@ function SummaryCard({ icon, label, value, helper }: { icon: React.ReactNode; la
         <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-[#dbe4fa] bg-[#f2f6ff]">{icon}</div>
       </CardContent>
     </Card>
+  );
+
+  if (!onClick) {
+    return content;
+  }
+
+  return (
+    <button type="button" onClick={onClick} className="text-left transition-transform hover:-translate-y-0.5">
+      {content}
+    </button>
   );
 }
 

@@ -90,6 +90,51 @@ export async function getUserByGoogleId(googleId: string): Promise<UserProfile |
   return mapRowToProfile(result.rows[0] as any);
 }
 
+export async function getUserByEmail(email: string): Promise<UserProfile | null> {
+  const normalizedEmail = email.trim().toLowerCase();
+
+  if (!isDbEnabled()) {
+    const store = await readStore();
+    for (const user of Object.values(store)) {
+      if ((user.email || '').trim().toLowerCase() === normalizedEmail) return user;
+    }
+    return null;
+  }
+
+  const result = await query(
+    `SELECT user_id, google_id, email, full_name, avatar_url, profile, created_at, updated_at
+     FROM app_users
+     WHERE LOWER(email) = LOWER($1)
+     LIMIT 1`,
+    [normalizedEmail]
+  );
+  if (result.rowCount === 0) return null;
+  return mapRowToProfile(result.rows[0] as any);
+}
+
+export async function getUserByRazorpaySubscriptionId(subscriptionId: string): Promise<UserProfile | null> {
+  const normalizedSubscriptionId = subscriptionId.trim();
+  if (!normalizedSubscriptionId) return null;
+
+  if (!isDbEnabled()) {
+    const store = await readStore();
+    for (const user of Object.values(store)) {
+      if ((user.razorpaySubscriptionId || '').trim() === normalizedSubscriptionId) return user;
+    }
+    return null;
+  }
+
+  const result = await query(
+    `SELECT user_id, google_id, email, full_name, avatar_url, profile, created_at, updated_at
+     FROM app_users
+     WHERE profile ->> 'razorpaySubscriptionId' = $1
+     LIMIT 1`,
+    [normalizedSubscriptionId]
+  );
+  if (result.rowCount === 0) return null;
+  return mapRowToProfile(result.rows[0] as any);
+}
+
 export async function upsertUser(user: UserProfile): Promise<UserProfile> {
   if (!isDbEnabled()) {
     const store = await readStore();

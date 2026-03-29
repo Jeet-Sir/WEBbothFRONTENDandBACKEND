@@ -69,6 +69,8 @@ Important keys:
 - `JWT_SECRET`
 - `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`
 - `DB_USER`, `DB_PASSWORD`, `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_SSL_CA_PATH`, `DB_REJECT_UNAUTHORIZED`
+- `MONGODB_URI`
+- `MONGODB_DB_NAME` or `MONGO_DB_NAME` (defaults to `formAutofill`)
 - Optional backend upload route keys:
   - `FIREBASE_STORAGE_BUCKET`
   - `FIREBASE_SERVICE_ACCOUNT_PATH`

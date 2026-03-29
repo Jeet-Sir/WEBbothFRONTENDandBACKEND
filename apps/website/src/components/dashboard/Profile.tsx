@@ -15,6 +15,7 @@ import {
   STARTUP_STAGES,
   COMPANY_TYPES,
   getCountryLabel,
+  normalizeStartupStage,
 } from '@/lib/types';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -62,21 +63,33 @@ export const Profile: React.FC<ProfileProps> = ({
 }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-  const [editedUser, setEditedUser] = useState<UserProfile>({ ...user, coFounders: user.coFounders || [] });
+  const [editedUser, setEditedUser] = useState<UserProfile>({
+    ...user,
+    startupStage: normalizeStartupStage(user.startupStage),
+    coFounders: user.coFounders || [],
+  });
   const [avatarLoadFailed, setAvatarLoadFailed] = useState(false);
   const founderEditorRef = useRef<HTMLDivElement | null>(null);
   const isGlobalFounder = user.marketSegment === 'global_founder';
   const isFounder = user.marketSegment === 'global_founder' || user.professions.includes('Founder');
 
   useEffect(() => {
-    setEditedUser({ ...user, coFounders: user.coFounders || [] });
+    setEditedUser({
+      ...user,
+      startupStage: normalizeStartupStage(user.startupStage),
+      coFounders: user.coFounders || [],
+    });
     setAvatarLoadFailed(false);
   }, [user]);
 
   useEffect(() => {
     if (!autoOpenFounderEditor) return;
 
-    setEditedUser({ ...user, coFounders: user.coFounders || [] });
+    setEditedUser({
+      ...user,
+      startupStage: normalizeStartupStage(user.startupStage),
+      coFounders: user.coFounders || [],
+    });
     setIsEditing(true);
 
     const timer = window.setTimeout(() => {
@@ -160,7 +173,11 @@ export const Profile: React.FC<ProfileProps> = ({
         <div className="flex items-center gap-4">
           <Button
             onClick={() => {
-              setEditedUser({ ...user, coFounders: user.coFounders || [] });
+              setEditedUser({
+                ...user,
+                startupStage: normalizeStartupStage(user.startupStage),
+                coFounders: user.coFounders || [],
+              });
               setIsEditing(true);
             }}
             className="h-12 px-8 rounded-2xl text-lg font-bold shadow-xl shadow-primary/20 flex items-center gap-3 transition-transform hover:scale-105"

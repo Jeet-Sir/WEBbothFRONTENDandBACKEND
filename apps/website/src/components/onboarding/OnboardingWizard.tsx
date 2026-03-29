@@ -16,6 +16,7 @@ import {
   STARTUP_STAGES,
   COMPANY_TYPES,
   getCountryLabel,
+  normalizeStartupStage,
 } from '@/lib/types';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -24,7 +25,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { Progress } from '@/components/ui/progress';
-import { ChevronRight, ChevronLeft, Check, Globe2, Plus, Trash2 } from 'lucide-react';
+import { ChevronRight, ChevronLeft, Check, Globe2, Plus, Trash2, MapPin, Loader2 } from 'lucide-react';
 
 interface OnboardingWizardProps {
   userId: string;
@@ -73,30 +74,96 @@ function createEmptyCoFounder(): CoFounderProfile {
 export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ user, saveUser }) => {
   const [localUser, setLocalUser] = React.useState<UserProfile>({
     ...user,
+    startupStage: normalizeStartupStage(user.startupStage),
     coFounders: user.coFounders || [],
   });
   const [selectedCountryCode, setSelectedCountryCode] = React.useState(user.countryCode || '');
+  const [isDetecting, setIsDetecting] = React.useState(false);
 
+  const isInitialMount = React.useRef(true);
+  const prevUserIdRef = React.useRef(user.userId);
+  const lastSavedUserRef = React.useRef<string>(JSON.stringify({
+    ...user,
+    coFounders: user.coFounders || []
+  }));
+
+  // 1. Incoming Sync (Parent -> Local State) - ONLY on init or actual User change
   useEffect(() => {
-    setLocalUser({
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+      setSelectedCountryCode(user.countryCode || detectCountryCode());
+      return;
+    }
+
+    const cleanUser = {
       ...user,
+      startupStage: normalizeStartupStage(user.startupStage),
       coFounders: user.coFounders || [],
-    });
-    setSelectedCountryCode(user.countryCode || detectCountryCode());
+    };
+    const userJson = JSON.stringify(cleanUser);
+
+    // ✅ Hard Sync: Only if the actual User ID changed (e.g. account switch)
+    if (user.userId !== prevUserIdRef.current) {
+      setLocalUser(cleanUser);
+      prevUserIdRef.current = user.userId;
+      lastSavedUserRef.current = userJson;
+      return;
+    }
   }, [user]);
 
+  // 2. Outgoing Sync (Local State -> Debounced Save -> Parent)
   useEffect(() => {
     const handler = setTimeout(() => {
-      const { userId: _u1, googleId: _g1, createdAt: _c1, updatedAt: _up1, ...localRest } = localUser as any;
-      const { userId: _u2, googleId: _g2, createdAt: _c2, updatedAt: _up2, ...propRest } = user as any;
+      const currentUserJson = JSON.stringify(localUser);
 
-      if (JSON.stringify(localRest) !== JSON.stringify(propRest)) {
+      // Only fire save if localUser actually differs from what we last saved
+      if (lastSavedUserRef.current !== currentUserJson) {
+        lastSavedUserRef.current = currentUserJson;
         saveUser(localUser);
       }
     }, 800);
 
     return () => clearTimeout(handler);
-  }, [localUser, saveUser, user]);
+  }, [localUser, saveUser]);
+
+  // 3. Auto-detect country on mount if no country pre-selected
+  const hasAutoDetectedRef = React.useRef(false);
+  useEffect(() => {
+    if (hasAutoDetectedRef.current) return;
+    if (user.countryCode) return; // already have a country, skip
+    hasAutoDetectedRef.current = true;
+    handleDetectLocation();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const handleDetectLocation = () => {
+    if (!navigator.geolocation) {
+      alert("Geolocation is not supported by your browser");
+      return;
+    }
+
+    setIsDetecting(true);
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        try {
+          const { latitude, longitude } = position.coords;
+          const res = await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=en`);
+          const data = await res.json();
+          if (data.countryCode) {
+            setSelectedCountryCode(data.countryCode);
+          }
+        } catch (err) {
+          console.error("Location detection failed", err);
+        } finally {
+          setIsDetecting(false);
+        }
+      },
+      (err) => {
+        console.error("Geolocation error", err);
+        setIsDetecting(false);
+      }
+    );
+  };
 
   const isMarketConfirmed = Boolean(localUser.countryCode && localUser.marketSegment);
   const isGlobalFounder = localUser.marketSegment === 'global_founder';
@@ -169,7 +236,7 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ user, saveUs
     }
 
     if (currentStepKey === 'founder') {
-      return Boolean(profile.startupName && profile.industry && profile.startupStage);
+      return Boolean(profile.startupName && profile.startupStage);
     }
 
     return false;
@@ -191,6 +258,7 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ user, saveUs
     };
 
     setLocalUser(nextUser);
+    lastSavedUserRef.current = JSON.stringify(nextUser);
     saveUser(nextUser);
   };
 
@@ -205,6 +273,7 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ user, saveUs
     };
 
     setLocalUser(nextUser);
+    lastSavedUserRef.current = JSON.stringify(nextUser);
     saveUser(nextUser);
   };
 
@@ -217,6 +286,7 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ user, saveUs
     };
 
     setLocalUser(previousUser);
+    lastSavedUserRef.current = JSON.stringify(previousUser);
     saveUser(previousUser);
   };
 
@@ -237,23 +307,30 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ user, saveUs
               </p>
             </div>
 
-            <div className="space-y-3">
+            <div className="space-y-4">
               <Label>Your Country</Label>
-              <Select value={selectedCountryCode} onValueChange={setSelectedCountryCode}>
-                <SelectTrigger className="h-12">
-                  <SelectValue placeholder="Select your country" />
-                </SelectTrigger>
-                <SelectContent>
-                  {COUNTRY_OPTIONS.map((country) => (
-                    <SelectItem key={country.code} value={country.code}>
-                      {country.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <p className="text-xs text-muted-foreground">
-                Browser guess: {detectedCountry}
-              </p>
+              {isDetecting ? (
+                <div className="h-14 rounded-xl border border-slate-200 bg-slate-50 flex items-center justify-center gap-2 text-sm text-muted-foreground">
+                  <Loader2 className="w-4 h-4 animate-spin text-blue-500" />
+                  Detecting your location…
+                </div>
+              ) : selectedCountryCode ? (
+                <div className="h-14 rounded-xl border border-blue-200 bg-blue-50 flex items-center gap-3 px-4">
+                  <MapPin className="w-4 h-4 text-blue-600 shrink-0" />
+                  <span className="font-semibold text-blue-900">{detectedCountry}</span>
+                </div>
+              ) : (
+                <div className="h-14 rounded-xl border border-red-200 bg-red-50 flex flex-col items-center justify-center gap-1 text-sm text-red-600">
+                  <span>Location detection failed or denied.</span>
+                  <button
+                    type="button"
+                    className="text-xs underline"
+                    onClick={handleDetectLocation}
+                  >
+                    Try again
+                  </button>
+                </div>
+              )}
             </div>
 
             <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-700 space-y-2">
@@ -265,7 +342,11 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ user, saveUs
               </p>
             </div>
 
-            <Button disabled={!selectedCountryCode} onClick={handleMarketConfirm} className="w-full h-12 shadow-lg shadow-primary/20">
+            <Button
+              disabled={!selectedCountryCode || isDetecting}
+              onClick={handleMarketConfirm}
+              className="w-full h-12 shadow-lg shadow-primary/20"
+            >
               Continue <ChevronRight className="ml-2 w-4 h-4" />
             </Button>
           </Card>
@@ -301,6 +382,14 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ user, saveUs
                         placeholder="First Name"
                         value={localUser.firstName || ''}
                         onChange={(e) => handleChange('firstName', e.target.value)}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Middle Name</Label>
+                      <Input
+                        placeholder="Middle Name"
+                        value={localUser.middleName || ''}
+                        onChange={(e) => handleChange('middleName', e.target.value)}
                       />
                     </div>
                     <div className="space-y-2">
@@ -343,13 +432,21 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ user, saveUs
               <div className="space-y-8">
                 <div className="space-y-4">
                   <h3 className="text-lg font-bold text-primary">Basic Bio & Contact</h3>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     <div className="space-y-2">
                       <Label>First Name *</Label>
                       <Input
                         placeholder="First Name"
                         value={localUser.firstName || ''}
                         onChange={(e) => handleChange('firstName', e.target.value)}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Middle Name</Label>
+                      <Input
+                        placeholder="Middle Name"
+                        value={localUser.middleName || ''}
+                        onChange={(e) => handleChange('middleName', e.target.value)}
                       />
                     </div>
                     <div className="space-y-2">
@@ -749,7 +846,7 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ user, saveUs
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label>Industry / Sector *</Label>
+                    <Label>Industry / Sector</Label>
                     <Input
                       placeholder="Fintech, Healthtech, SaaS"
                       value={localUser.industry || ''}

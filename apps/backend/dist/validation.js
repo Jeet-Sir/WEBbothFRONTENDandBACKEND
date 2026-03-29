@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.createCreditEventSchema = exports.createFormSessionSchema = exports.uploadVaultSchema = exports.processVaultSchema = exports.onboardSchema = exports.profilePatchSchema = exports.authGoogleSchema = void 0;
+exports.createCreditEventSchema = exports.createFormSessionSchema = exports.uploadVaultSchema = exports.processVaultSchema = exports.onboardSchema = exports.checkoutIntentSchema = exports.profilePatchSchema = exports.authGoogleSchema = void 0;
 const zod_1 = require("zod");
 const documentSchema = zod_1.z.object({
     fileUrl: zod_1.z.string().min(1).optional(),
@@ -96,6 +96,9 @@ exports.profilePatchSchema = zod_1.z
     documents: zod_1.z.record(zod_1.z.string(), documentSchema).optional(),
 })
     .strict();
+exports.checkoutIntentSchema = zod_1.z.object({
+    purchaseType: zod_1.z.enum(['monthly_100', 'top_up_10']),
+});
 exports.onboardSchema = zod_1.z.object({
     step: zod_1.z.number().int().min(1).max(4),
     onboardingComplete: zod_1.z.boolean().optional(),

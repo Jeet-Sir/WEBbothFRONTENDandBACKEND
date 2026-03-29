@@ -1,4 +1,15 @@
 export type Profession = 'Student' | 'Professional' | 'Founder' | 'Researcher' | 'Other';
+export type CreditPlan = 'free' | 'monthly_100';
+export type CreditPurchaseType = 'monthly_100' | 'top_up_10';
+export type RazorpaySubscriptionStatus =
+  | 'created'
+  | 'authenticated'
+  | 'active'
+  | 'pending'
+  | 'halted'
+  | 'paused'
+  | 'cancelled'
+  | 'completed';
 
 export type DocumentStatus = 'idle' | 'processing' | 'verified' | 'rejected';
 export type MarketSegment = 'india' | 'global_founder';
@@ -32,6 +43,21 @@ export interface UserProfile {
   avatarUrl?: string;
   countryCode?: string;
   marketSegment?: MarketSegment;
+  creditPlan?: CreditPlan;
+  creditPlanExpiresAt?: string;
+  purchasedCredits?: number;
+  purchasedCreditsExpiresAt?: string;
+  freeCreditsAwarded?: number;
+  pendingCreditPurchaseType?: CreditPurchaseType;
+  pendingCreditPurchaseCreatedAt?: string;
+  processedRazorpayPaymentIds?: string[];
+  processedRazorpayEventIds?: string[];
+  razorpaySubscriptionId?: string;
+  razorpaySubscriptionShortUrl?: string;
+  razorpaySubscriptionPlanId?: string;
+  subscriptionStatus?: RazorpaySubscriptionStatus;
+  subscriptionCurrentStart?: string;
+  subscriptionCurrentEnd?: string;
   onboardingComplete: boolean;
   onboardingStep: number;
   firstName?: string;
@@ -72,6 +98,11 @@ export interface UserProfile {
   updatedAt: string;
 }
 
+export interface MonetaryPrice {
+  usd: number;
+  inr: number;
+}
+
 export type SessionStatus = 'submitted' | 'abandoned' | 'in_progress';
 export type CreditEventType =
   | 'form_fill_agent'
@@ -88,6 +119,7 @@ export interface SessionAgentLog {
   outputTokens: number;
   totalTokens: number;
   creditsUsed: number;
+  price?: MonetaryPrice;
   createdAt: string;
   metadata?: Record<string, unknown>;
 }
@@ -101,6 +133,7 @@ export interface SessionDocumentUsage {
   outputTokens: number;
   totalTokens: number;
   creditsUsed: number;
+  price?: MonetaryPrice;
   createdAt: string;
   metadata?: Record<string, unknown>;
 }
@@ -118,6 +151,7 @@ export interface FormSession {
   submittedAt?: string;
   updatedAt: string;
   creditsUsed: number;
+  price?: MonetaryPrice;
   totalTokens: number;
   agentCount: number;
   agentLogs: SessionAgentLog[];
@@ -136,6 +170,7 @@ export interface CreditEvent {
   outputTokens: number;
   totalTokens: number;
   creditsUsed: number;
+  price?: MonetaryPrice;
   billingPeriod: string;
   createdAt: string;
   metadata?: Record<string, unknown>;
@@ -144,8 +179,14 @@ export interface CreditEvent {
 export interface ActivitySummary {
   totalFormsFilled: number;
   totalCreditsUsed: number;
+  totalPrice?: MonetaryPrice;
   docsUploaded: number;
   creditsThisMonth: number;
+  priceThisMonth?: MonetaryPrice;
+  creditsCurrentCycle?: number;
+  priceCurrentCycle?: MonetaryPrice;
+  currentCycleStart?: string;
+  currentCycleEnd?: string;
 }
 
 export interface AuthJwtPayload {

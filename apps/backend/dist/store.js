@@ -5,6 +5,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getUser = getUser;
 exports.getUserByGoogleId = getUserByGoogleId;
+exports.getUserByEmail = getUserByEmail;
+exports.getUserByRazorpaySubscriptionId = getUserByRazorpaySubscriptionId;
 exports.upsertUser = upsertUser;
 exports.patchUser = patchUser;
 exports.deleteUser = deleteUser;
@@ -74,6 +76,44 @@ async function getUserByGoogleId(googleId) {
      FROM app_users
      WHERE google_id = $1
      LIMIT 1`, [googleId]);
+    if (result.rowCount === 0)
+        return null;
+    return mapRowToProfile(result.rows[0]);
+}
+async function getUserByEmail(email) {
+    const normalizedEmail = email.trim().toLowerCase();
+    if (!(0, db_1.isDbEnabled)()) {
+        const store = await readStore();
+        for (const user of Object.values(store)) {
+            if ((user.email || '').trim().toLowerCase() === normalizedEmail)
+                return user;
+        }
+        return null;
+    }
+    const result = await (0, db_1.query)(`SELECT user_id, google_id, email, full_name, avatar_url, profile, created_at, updated_at
+     FROM app_users
+     WHERE LOWER(email) = LOWER($1)
+     LIMIT 1`, [normalizedEmail]);
+    if (result.rowCount === 0)
+        return null;
+    return mapRowToProfile(result.rows[0]);
+}
+async function getUserByRazorpaySubscriptionId(subscriptionId) {
+    const normalizedSubscriptionId = subscriptionId.trim();
+    if (!normalizedSubscriptionId)
+        return null;
+    if (!(0, db_1.isDbEnabled)()) {
+        const store = await readStore();
+        for (const user of Object.values(store)) {
+            if ((user.razorpaySubscriptionId || '').trim() === normalizedSubscriptionId)
+                return user;
+        }
+        return null;
+    }
+    const result = await (0, db_1.query)(`SELECT user_id, google_id, email, full_name, avatar_url, profile, created_at, updated_at
+     FROM app_users
+     WHERE profile ->> 'razorpaySubscriptionId' = $1
+     LIMIT 1`, [normalizedSubscriptionId]);
     if (result.rowCount === 0)
         return null;
     return mapRowToProfile(result.rows[0]);
