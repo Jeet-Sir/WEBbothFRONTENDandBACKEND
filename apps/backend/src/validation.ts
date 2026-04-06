@@ -1,9 +1,15 @@
 import { z } from 'zod';
 
 const documentSchema = z.object({
+  id: z.string().optional(),
+  documentType: z.string().optional(),
+  displayName: z.string().optional(),
+  originalFileName: z.string().optional(),
   fileUrl: z.string().min(1).optional(),
   storagePath: z.string().optional(),
   extractedData: z.record(z.string(), z.unknown()).nullable().optional(),
+  confidence: z.number().min(0).max(1).optional(),
+  profileSection: z.string().optional(),
   status: z.enum(['idle', 'processing', 'verified', 'rejected']),
   uploadedAt: z.string(),
   processedAt: z.string().optional(),
@@ -120,10 +126,11 @@ export const processVaultSchema = z.object({
 });
 
 export const uploadVaultSchema = z.object({
-  docType: z.string().min(1),
+  docType: z.string().min(1).optional(),
   fileName: z.string().min(1),
   mimeType: z.string().min(1),
   dataUri: z.string().startsWith('data:'),
+  source: z.enum(['web', 'extension']).optional(),
 });
 
 export const createFormSessionSchema = z.object({
