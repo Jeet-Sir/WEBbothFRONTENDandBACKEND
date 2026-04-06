@@ -25,9 +25,15 @@ export interface CoFounderProfile {
 }
 
 export interface UserDocument {
+  id?: string;
+  documentType?: string;
+  displayName?: string;
+  originalFileName?: string;
   fileUrl?: string;
   storagePath?: string;
   extractedData?: Record<string, unknown> | null;
+  confidence?: number;
+  profileSection?: string;
   status: DocumentStatus;
   uploadedAt: string;
   processedAt?: string;
