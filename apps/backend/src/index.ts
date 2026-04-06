@@ -56,6 +56,7 @@ type DocumentExtractionResult = {
     thoughtsTokens?: number;
     cachedContentTokens?: number;
   };
+  aiFileUri?: string;
 };
 
 type RazorpayPaymentEntity = {
@@ -113,15 +114,32 @@ async function runDocumentExtraction(
   fileUrl: string,
   docType: string,
   mimeType: string = 'application/pdf',
-  requestId?: string
+  requestId?: string,
+  isDeveloper: boolean = false
 ): Promise<DocumentExtractionResult> {
   try {
     const fileUri = await uploadFileToGemini(fileUrl, mimeType);
+
+    if (!isDeveloper) {
+      logInfo('AI extraction disabled for regular user, skipping extraction', { requestId, docType });
+      return {
+        extractedData: {
+          aiFileUrl: fileUri,
+          ai_extraction_disabled: true,
+        },
+        aiFileUri: fileUri,
+      };
+    }
+
     const ai = await import('./ai/flows/extract-data-from-document.js');
     const result = await ai.extractDataFromDocument({ fileUri, docType, mimeType });
     return {
-      extractedData: result.extractedData || {},
+      extractedData: {
+        ...(result.extractedData || {}),
+        aiFileUrl: fileUri,
+      },
       usage: result.usage,
+      aiFileUri: fileUri,
     };
   } catch (error) {
     logWarn('AI extraction unavailable, storing fallback payload', { requestId, error });
@@ -243,7 +261,7 @@ function readAuth(req: IncomingMessage, allowedScopes?: string[]): AuthJwtPayloa
   const token = authHeader.slice('Bearer '.length);
   const decoded = verifyJwt(token);
   if (!decoded) return null;
-  
+
   // If allowedScopes is provided, the token must either:
   // 1. Have a matching scope, or
   // 2. Be an older token with no scope (for backwards compatibility), and we'll allow it for now.
@@ -894,7 +912,7 @@ const server = createServer(async (req, res) => {
         sendJson(req, res, 401, { error: 'No session cookie' });
         return;
       }
-      
+
       const decoded = verifyJwt(sessionToken);
       if (!decoded || (decoded.scope && decoded.scope !== 'web')) {
         sendJson(req, res, 401, { error: 'Invalid session cookie' });
@@ -905,7 +923,7 @@ const server = createServer(async (req, res) => {
         { userId: decoded.userId, email: decoded.email, scope: 'extension' },
         30 * 60 // 30 minutes
       );
-      
+
       sendJson(req, res, 200, { token: extensionToken });
       return;
     }
@@ -998,7 +1016,7 @@ const server = createServer(async (req, res) => {
       }
 
       const token = issueJwt({ userId: user.userId, email: user.email, scope: 'web' });
-      
+
       const cookieOpts = [
         `sabapplier_session=${token}`,
         'Path=/',
@@ -1453,8 +1471,10 @@ const server = createServer(async (req, res) => {
         return;
       }
 
+      const isDeveloper = current.email === 'jithusoe@gmail.com' || current.email === 'sabapplierai100m@gmail.com' || current.email === 'palanirudh82994@gmail.com';
+
       try {
-        const extraction = await runDocumentExtraction(fileUrl, docType, mimeType || 'application/pdf', requestId);
+        const extraction = await runDocumentExtraction(fileUrl, docType, mimeType || 'application/pdf', requestId, isDeveloper);
         const extractedData = extraction.extractedData;
         const now = new Date().toISOString();
         const inputTokens = Math.max(0, Number(extraction.usage?.inputTokens) || 0);
